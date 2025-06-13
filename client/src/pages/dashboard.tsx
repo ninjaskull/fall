@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Code, LogOut, Upload, MessageSquare } from "lucide-react";
+import { Code, LogOut, FolderOpen, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import CsvUpload from "@/components/csv-upload";
 import NotesDocuments from "@/components/notes-documents";
 import CampaignList from "@/components/campaign-list";
 
