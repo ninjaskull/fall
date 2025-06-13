@@ -212,6 +212,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete campaign
+  app.delete('/api/campaigns/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const campaign = await storage.getCampaign(id);
+      
+      if (!campaign) {
+        return res.status(404).json({ message: 'Campaign not found' });
+      }
+
+      await storage.deleteCampaign(id);
+      
+      res.json({ message: 'Campaign deleted successfully' });
+    } catch (error) {
+      console.error('Delete campaign error:', error);
+      res.status(500).json({ message: 'Failed to delete campaign' });
+    }
+  });
+
   // Create note
   app.post('/api/notes', async (req, res) => {
     try {

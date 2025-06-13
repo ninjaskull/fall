@@ -7,6 +7,7 @@ import { Code, LogOut, Upload, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import CsvUpload from "@/components/csv-upload";
 import NotesDocuments from "@/components/notes-documents";
+import CampaignList from "@/components/campaign-list";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
