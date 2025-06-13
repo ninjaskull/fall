@@ -1,0 +1,73 @@
+🔧 Build me a full-stack web app with the following requirements:
+
+1. 🎨 Frontend:
+   - Use **React + TailwindCSS**.
+   - Homepage should look like a **modern web development agency landing page** with:
+     - Hero section (title, subtitle, CTA)
+     - Services section
+     - Portfolio or testimonials placeholder
+     - Footer with text: `© 2025 Acme Web Agency`
+
+   - The **"2025"** text in footer is interactive:
+     - When clicked **5 times**, show a **password input** styled as a search bar or modal.
+     - If password is correct, redirect to `/dashboard`.
+
+2. 🔐 Dashboard (`/dashboard`) – Password protected:
+   - Simple SPA-style page with two main cards:
+     - 📁 **Upload Campaign Data**
+     - 📝 **Upload Notes & Documents**
+
+3. 📁 Campaign CSV Upload:
+   - Upload one or more CSV files.
+   - Auto-detect the following headers:
+     ```
+     First Name, Last Name, Title, Company, Email, Mobile Phone, Other Phone, Corporate Phone,
+     Person Linkedin Url, Company Linkedin Url, Website, State, Country
+     ```
+   - If headers are missing, allow **manual mapping** via dropdown (of CSV headers).
+   - Add a new column: `Time zone`
+     - Use **State + Country** to derive EST, PST, CST etc.
+     - If state or country is missing, mark `Time zone` as `NA`.
+   - Save only selected/mapped fields in a **secure encrypted format** (e.g., JSON or database table).
+   - After upload, show the campaign file in a **read-only spreadsheet UI** using `react-table` or `ag-grid`.
+
+4. 📄 Notes & Documents Module:
+   - Allow user to:
+     - Write **text notes** (like chat messages, stored with timestamp).
+     - Upload **any file format** (PDF, DOCX, PPT, etc.).
+   - Allow user to:
+     - View uploaded documents (with inline preview or download option).
+     - View notes in a chat-like UI (static text for now).
+
+5. 🔐 Security:
+   - Store password securely (can be hardcoded or stored in env file).
+   - Use `bcrypt` or `argon2` for password hashing.
+   - Encrypt all saved data (CSV content, field mappings, notes, docs) using **AES**.
+   - Use HTTPS, sanitize inputs, validate file types and size limits.
+
+6. 🧱 Tech Stack:
+   - Frontend: **React + TailwindCSS**
+   - Backend: **Node.js + Express**
+   - CSV parsing: `papaparse` or similar
+   - Spreadsheet UI: `react-table` or `ag-grid`
+   - File storage: Server filesystem or encrypted S3 bucket
+   - Encryption: AES for files, bcrypt for password
+   - Hosting (optional): Vercel (frontend), Render/DigitalOcean (backend)
+
+7. 📁 Routes:
+   - `/` → Public landing page
+   - `/dashboard` → Protected dashboard after password input
+   - `/campaign/:name` → Spreadsheet view for campaign
+   - `/notes` → View/manage notes and uploaded files
+
+8. 🛠️ Must:
+   - Use SPA routing (no reload between views)
+   - Make app modular and extensible for:
+     - IP whitelisting
+     - Export/download CSV
+     - Multi-user access (future)
+     - Advanced filtering
+
+Build this as a modular and secure full-stack app, structured cleanly for scaling later.
+
+
