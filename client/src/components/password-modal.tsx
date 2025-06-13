@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Lock, Eye, EyeOff } from "lucide-react";
@@ -70,6 +70,8 @@ export default function PasswordModal({ isOpen, onClose }: PasswordModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-md">
+        <DialogTitle className="sr-only">Access Dashboard</DialogTitle>
+        <DialogDescription className="sr-only">Enter password to continue to the dashboard</DialogDescription>
         <div className="text-center mb-6">
           <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="text-blue-600 text-2xl" />
