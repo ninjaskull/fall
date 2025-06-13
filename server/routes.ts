@@ -278,6 +278,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Document upload request received');
       console.log('Request body:', req.body);
       console.log('Request files:', req.files);
+      console.log('Content-Type:', req.headers['content-type']);
+      console.log('Raw request headers:', req.headers);
       
       const files = req.files as Express.Multer.File[];
       if (!files || files.length === 0) {

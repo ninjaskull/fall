@@ -26,8 +26,8 @@ export default function NotesDocuments() {
 
   // Combine and sort notes and documents by date
   const allMessages = [
-    ...notes.map((note: any) => ({ ...note, type: 'note' })),
-    ...documents.map((doc: any) => ({ ...doc, type: 'document' }))
+    ...(notes as any[]).map((note: any) => ({ ...note, type: 'note' })),
+    ...(documents as any[]).map((doc: any) => ({ ...doc, type: 'document' }))
   ].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
 
   // Auto-scroll to bottom when new messages arrive
@@ -59,11 +59,14 @@ export default function NotesDocuments() {
 
   const uploadDocumentsMutation = useMutation({
     mutationFn: async (files: FileList) => {
+      console.log('Starting upload mutation with files:', Array.from(files).map(f => f.name));
       const formData = new FormData();
-      Array.from(files).forEach(file => {
+      Array.from(files).forEach((file, index) => {
+        console.log(`Appending file ${index}:`, file.name, file.size, 'bytes');
         formData.append('documents', file);
       });
       
+      console.log('FormData created, making request...');
       const response = await apiRequest('POST', '/api/documents/upload', formData);
       return response.json();
     },
@@ -100,11 +103,15 @@ export default function NotesDocuments() {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
+    console.log('File input changed:', files);
     if (files && files.length > 0) {
+      console.log('Files selected:', Array.from(files).map(f => f.name));
       setSelectedFiles(files);
       // Auto-upload files immediately
       uploadDocumentsMutation.mutate(files);
       e.target.value = ''; // Reset input
+    } else {
+      console.log('No files selected');
     }
   };
 
@@ -288,7 +295,7 @@ export default function NotesDocuments() {
           multiple 
           className="hidden" 
           onChange={handleFileChange}
-          accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
+          accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.csv"
         />
         
         <p className="text-xs text-slate-500 mt-2">Press Enter to send, Shift+Enter for new line</p>
