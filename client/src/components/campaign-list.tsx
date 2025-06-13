@@ -88,12 +88,12 @@ export default function CampaignList() {
     }
   });
 
-  const filteredCampaigns = campaigns.filter((campaign: Campaign) =>
+  const filteredCampaigns = (campaigns as Campaign[]).filter((campaign: Campaign) =>
     campaign.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleViewData = async (campaign: Campaign) => {
-    setSelectedCampaign(campaign as CampaignData);
+    setSelectedCampaign(campaign as any);
     setIsViewDialogOpen(true);
   };
 
@@ -104,14 +104,14 @@ export default function CampaignList() {
   };
 
   const handleCopyData = () => {
-    if (!campaignData?.data) return;
+    if (!(campaignData as any)?.data) return;
 
-    const { headers, rows } = campaignData.data;
+    const { headers, rows } = (campaignData as any).data;
     
     // Create tab-separated values format for easy pasting into spreadsheets
     const headerRow = headers.join('\t');
-    const dataRows = rows.map(row => 
-      headers.map(header => row[header] || '').join('\t')
+    const dataRows = rows.map((row: any) => 
+      headers.map((header: string) => row[header] || '').join('\t')
     );
     
     const tsvContent = [headerRow, ...dataRows].join('\n');
@@ -131,15 +131,15 @@ export default function CampaignList() {
   };
 
   const handleExportCSV = () => {
-    if (!campaignData?.data) return;
+    if (!(campaignData as any)?.data) return;
 
-    const { headers, rows } = campaignData.data;
+    const { headers, rows } = (campaignData as any).data;
     
     // Create CSV content
     const csvContent = [
-      headers.map(h => `"${h}"`).join(','),
-      ...rows.map(row => 
-        headers.map(header => `"${(row[header] || '').replace(/"/g, '""')}"`).join(',')
+      headers.map((h: string) => `"${h}"`).join(','),
+      ...rows.map((row: any) => 
+        headers.map((header: string) => `"${(row[header] || '').replace(/"/g, '""')}"`).join(',')
       )
     ].join('\n');
 
@@ -148,7 +148,7 @@ export default function CampaignList() {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `${campaignData.name}.csv`);
+    link.setAttribute('download', `${(campaignData as any).name}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -280,11 +280,11 @@ export default function CampaignList() {
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full"></div>
             </div>
-          ) : campaignData?.data ? (
+          ) : (campaignData as any)?.data ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Badge variant="secondary">
-                  {campaignData.data.rows.length} records
+                  {(campaignData as any).data.rows.length} records
                 </Badge>
                 <div className="flex space-x-2">
                   <Button
@@ -310,7 +310,7 @@ export default function CampaignList() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      {campaignData.data.headers.map((header, index) => (
+                      {(campaignData as any).data.headers.map((header: string, index: number) => (
                         <TableHead key={index} className="font-medium">
                           {header}
                         </TableHead>
@@ -318,9 +318,9 @@ export default function CampaignList() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {campaignData.data.rows.map((row, index) => (
+                    {(campaignData as any).data.rows.map((row: any, index: number) => (
                       <TableRow key={index}>
-                        {campaignData.data.headers.map((header, cellIndex) => (
+                        {(campaignData as any).data.headers.map((header: string, cellIndex: number) => (
                           <TableCell key={cellIndex} className="text-sm">
                             {row[header] || ''}
                           </TableCell>

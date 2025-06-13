@@ -75,7 +75,10 @@ export default function Dashboard() {
 
           {/* Campaign Data Tab */}
           <TabsContent value="campaign" className="mt-6">
-            <CsvUpload />
+            <div className="space-y-6">
+              <CsvUpload />
+              <CampaignList />
+            </div>
           </TabsContent>
 
           {/* Notes & Documents Tab - Community Style */}
