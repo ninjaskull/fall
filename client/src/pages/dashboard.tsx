@@ -52,35 +52,26 @@ export default function Dashboard() {
       </header>
 
       {/* Dashboard Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome to your dashboard</h2>
-          <p className="text-slate-600">Manage your campaign data and documents from here</p>
-        </div>
-
-        {/* Main Tabs */}
-        <Tabs defaultValue="campaign" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="campaign" className="flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              Upload Campaign Data
+      <main className="w-full">
+        <Tabs defaultValue="files" className="w-full">
+          <TabsList className="ml-6 grid w-fit grid-cols-2">
+            <TabsTrigger value="files" className="flex items-center gap-2">
+              <FolderOpen className="h-4 w-4" />
+              Files
             </TabsTrigger>
-            <TabsTrigger value="community" className="flex items-center gap-2">
+            <TabsTrigger value="notes" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               Notes & Documents
             </TabsTrigger>
           </TabsList>
 
-          {/* Campaign Data Tab */}
-          <TabsContent value="campaign" className="mt-6">
-            <div className="space-y-6">
-              <CsvUpload />
-              <CampaignList />
-            </div>
+          {/* Files Tab */}
+          <TabsContent value="files" className="mt-0">
+            <CampaignList />
           </TabsContent>
 
-          {/* Notes & Documents Tab - Community Style */}
-          <TabsContent value="community" className="mt-6">
+          {/* Notes & Documents Tab */}
+          <TabsContent value="notes" className="mt-6 max-w-7xl mx-auto px-6">
             <NotesDocuments />
           </TabsContent>
         </Tabs>
