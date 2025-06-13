@@ -64,16 +64,26 @@ export default function NotesDocuments() {
         formData.append('documents', file);
       });
       
-      const response = await apiRequest('POST', '/api/documents/upload', formData);
+      const response = await fetch('/api/documents/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Upload failed');
+      }
+      
       return response.json();
     },
     onSuccess: (data) => {
       toast({
-        title: "Upload Successful",
-        description: `${data.documents.length} document(s) uploaded successfully`,
+        title: "File Uploaded",
+        description: `${data.documents.length} file(s) uploaded successfully`,
       });
       setSelectedFiles(null);
       queryClient.invalidateQueries({ queryKey: ['/api/documents'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/notes'] });
     },
     onError: (error) => {
       toast({
@@ -81,6 +91,7 @@ export default function NotesDocuments() {
         description: error.message || "Failed to upload documents",
         variant: "destructive"
       });
+      setSelectedFiles(null);
     }
   });
 
@@ -100,6 +111,9 @@ export default function NotesDocuments() {
     const files = e.target.files;
     if (files && files.length > 0) {
       setSelectedFiles(files);
+      // Auto-upload files immediately
+      uploadDocumentsMutation.mutate(files);
+      e.target.value = ''; // Reset input
     }
   };
 
@@ -157,14 +171,20 @@ export default function NotesDocuments() {
             </p>
           </div>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => document.getElementById('documentFileInput')?.click()}
-        >
-          <Plus className="h-4 w-4 mr-1" />
-          Add File
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => document.getElementById('documentFileInput')?.click()}
+            disabled={uploadDocumentsMutation.isPending}
+          >
+            {uploadDocumentsMutation.isPending ? (
+              <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+            ) : (
+              <Paperclip className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </div>
 
       {/* Messages Area */}
@@ -221,68 +241,65 @@ export default function NotesDocuments() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Hidden file input */}
-      <Input 
-        type="file" 
-        id="documentFileInput" 
-        multiple 
-        className="hidden" 
-        onChange={handleFileChange}
-      />
-
-      {/* File preview area */}
-      {selectedFiles && (
-        <div className="border-t bg-slate-50 p-4">
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-slate-900">Ready to upload:</p>
-            {Array.from(selectedFiles).map((file, index) => (
-              <div key={index} className="flex items-center justify-between bg-white p-2 rounded border">
-                <div className="flex items-center space-x-2">
-                  <File className="h-4 w-4 text-slate-500" />
-                  <span className="text-sm text-slate-700">{file.name}</span>
-                  <span className="text-xs text-slate-500">({formatFileSize(file.size)})</span>
-                </div>
-              </div>
-            ))}
-            <Button 
-              onClick={handleUploadDocuments}
-              disabled={uploadDocumentsMutation.isPending}
+      {/* Message Input */}
+      <div className="border-t p-4">
+        <div className="flex items-end space-x-2">
+          {/* Attachment Button */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => document.getElementById('documentFileInput')?.click()}
+            disabled={uploadDocumentsMutation.isPending}
+            className="mb-2 h-10 w-10 p-0 rounded-full hover:bg-slate-100"
+          >
+            {uploadDocumentsMutation.isPending ? (
+              <div className="animate-spin h-4 w-4 border-2 border-slate-600 border-t-transparent rounded-full" />
+            ) : (
+              <Paperclip className="h-5 w-5 text-slate-600" />
+            )}
+          </Button>
+          
+          {/* Message Input */}
+          <div className="flex-1 relative">
+            <Textarea
+              placeholder="Type a message..."
+              value={noteContent}
+              onChange={(e) => setNoteContent(e.target.value)}
+              className="resize-none pr-12 min-h-[60px] max-h-32"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSaveNote();
+                }
+              }}
+            />
+            {/* Send Button */}
+            <Button
+              onClick={handleSaveNote}
+              disabled={!noteContent.trim() || saveNoteMutation.isPending}
               size="sm"
-              className="w-full"
+              className="absolute right-2 bottom-2 h-8 w-8 p-0 rounded-full"
             >
-              {uploadDocumentsMutation.isPending ? "Uploading..." : `Upload ${selectedFiles.length} file(s)`}
+              {saveNoteMutation.isPending ? (
+                <div className="animate-spin h-3 w-3 border-2 border-white border-t-transparent rounded-full" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>
-      )}
-
-      {/* Message Input */}
-      <div className="border-t p-4">
-        <div className="flex space-x-2">
-          <Textarea
-            placeholder="Type a message..."
-            value={noteContent}
-            onChange={(e) => setNoteContent(e.target.value)}
-            className="flex-1 min-h-[80px] resize-none"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSaveNote();
-              }
-            }}
-          />
-          <Button
-            onClick={handleSaveNote}
-            disabled={!noteContent.trim() || saveNoteMutation.isPending}
-            className="self-end"
-          >
-            {saveNoteMutation.isPending ? (
-              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
+        
+        {/* Hidden file input */}
+        <Input 
+          type="file" 
+          id="documentFileInput" 
+          multiple 
+          className="hidden" 
+          onChange={handleFileChange}
+          accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
+        />
+        
         <p className="text-xs text-slate-500 mt-2">Press Enter to send, Shift+Enter for new line</p>
       </div>
     </div>

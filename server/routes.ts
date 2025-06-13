@@ -22,8 +22,10 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
+    console.log('File filter - fieldname:', file.fieldname, 'mimetype:', file.mimetype, 'originalname:', file.originalname);
+    
     // Allow CSV files for campaign upload
-    if (file.fieldname === 'csv' && file.mimetype === 'text/csv') {
+    if (file.fieldname === 'csv' && (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv'))) {
       cb(null, true);
     }
     // Allow various document types for notes
@@ -36,11 +38,20 @@ const upload = multer({
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         'text/plain',
         'image/jpeg',
-        'image/png'
+        'image/png',
+        'text/csv', // Add CSV support for documents too
+        'application/octet-stream' // Sometimes files come as this
       ];
-      cb(null, allowedTypes.includes(file.mimetype));
+      
+      // Also check file extension as fallback
+      const fileExtension = file.originalname.toLowerCase();
+      const allowedExtensions = ['.pdf', '.doc', '.docx', '.ppt', '.pptx', '.txt', '.jpg', '.jpeg', '.png', '.csv'];
+      const hasValidExtension = allowedExtensions.some(ext => fileExtension.endsWith(ext));
+      
+      cb(null, allowedTypes.includes(file.mimetype) || hasValidExtension);
     }
     else {
+      console.log('File rejected - invalid fieldname:', file.fieldname);
       cb(null, false);
     }
   }
@@ -258,8 +269,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Upload documents
   app.post('/api/documents/upload', upload.array('documents'), async (req, res) => {
     try {
+      console.log('Document upload request received');
+      console.log('Request body:', req.body);
+      console.log('Request files:', req.files);
+      
       const files = req.files as Express.Multer.File[];
       if (!files || files.length === 0) {
+        console.log('No files found in request');
         return res.status(400).json({ message: 'No documents uploaded' });
       }
 
