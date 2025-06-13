@@ -1,28 +1,36 @@
 import crypto from 'crypto';
 
 const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || 'default-key-32-chars-long-here!';
-const ALGORITHM = 'aes-256-gcm';
+const ALGORITHM = 'aes-256-cbc';
+
+// Ensure the key is exactly 32 bytes for AES-256
+function getKey(): Buffer {
+  const key = crypto.createHash('sha256').update(ENCRYPTION_KEY).digest();
+  return key;
+}
 
 export function encrypt(text: string): string {
   const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipher(ALGORITHM, ENCRYPTION_KEY);
+  const key = getKey();
+  const cipher = crypto.createCipher(ALGORITHM, key);
   
   let encrypted = cipher.update(text, 'utf8', 'hex');
   encrypted += cipher.final('hex');
   
-  const authTag = cipher.getAuthTag();
-  
-  return iv.toString('hex') + ':' + authTag.toString('hex') + ':' + encrypted;
+  return iv.toString('hex') + ':' + encrypted;
 }
 
 export function decrypt(encryptedData: string): string {
   const parts = encryptedData.split(':');
-  const iv = Buffer.from(parts[0], 'hex');
-  const authTag = Buffer.from(parts[1], 'hex');
-  const encrypted = parts[2];
+  if (parts.length !== 2) {
+    throw new Error('Invalid encrypted data format');
+  }
   
-  const decipher = crypto.createDecipher(ALGORITHM, ENCRYPTION_KEY);
-  decipher.setAuthTag(authTag);
+  const iv = Buffer.from(parts[0], 'hex');
+  const encrypted = parts[1];
+  const key = getKey();
+  
+  const decipher = crypto.createDecipher(ALGORITHM, key);
   
   let decrypted = decipher.update(encrypted, 'hex', 'utf8');
   decrypted += decipher.final('utf8');
