@@ -90,8 +90,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Campaign CSV upload
   app.post('/api/campaigns/upload', upload.array('csv'), async (req, res) => {
     try {
+      console.log('CSV upload request received');
+      console.log('Request body:', req.body);
+      console.log('Request files:', req.files);
+      console.log('Content-Type:', req.headers['content-type']);
+      
       const files = req.files as Express.Multer.File[];
       if (!files || files.length === 0) {
+        console.log('No CSV files found in request');
         return res.status(400).json({ message: 'No CSV files uploaded' });
       }
 
