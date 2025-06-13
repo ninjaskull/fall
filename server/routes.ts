@@ -28,27 +28,9 @@ const upload = multer({
     if (file.fieldname === 'csv' && (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv'))) {
       cb(null, true);
     }
-    // Allow various document types for notes
+    // Allow all file types for document uploads
     else if (file.fieldname === 'documents') {
-      const allowedTypes = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-powerpoint',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-        'text/plain',
-        'image/jpeg',
-        'image/png',
-        'text/csv', // Add CSV support for documents too
-        'application/octet-stream' // Sometimes files come as this
-      ];
-      
-      // Also check file extension as fallback
-      const fileExtension = file.originalname.toLowerCase();
-      const allowedExtensions = ['.pdf', '.doc', '.docx', '.ppt', '.pptx', '.txt', '.jpg', '.jpeg', '.png', '.csv'];
-      const hasValidExtension = allowedExtensions.some(ext => fileExtension.endsWith(ext));
-      
-      cb(null, allowedTypes.includes(file.mimetype) || hasValidExtension);
+      cb(null, true); // Accept all file types
     }
     else {
       console.log('File rejected - invalid fieldname:', file.fieldname);

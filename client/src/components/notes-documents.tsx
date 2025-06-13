@@ -58,10 +58,10 @@ export default function NotesDocuments() {
   });
 
   const uploadDocumentsMutation = useMutation({
-    mutationFn: async (files: FileList) => {
-      console.log('Starting upload mutation with files:', Array.from(files).map(f => f.name));
+    mutationFn: async (files: File[]) => {
+      console.log('Starting upload mutation with files:', files.map(f => f.name));
       const formData = new FormData();
-      Array.from(files).forEach((file, index) => {
+      files.forEach((file, index) => {
         console.log(`Appending file ${index}:`, file.name, file.size, 'bytes');
         formData.append('documents', file);
       });
@@ -106,9 +106,11 @@ export default function NotesDocuments() {
     console.log('File input changed:', files);
     if (files && files.length > 0) {
       console.log('Files selected:', Array.from(files).map(f => f.name));
+      // Convert FileList to Array to avoid reference issues
+      const fileArray = Array.from(files);
       setSelectedFiles(files);
       // Auto-upload files immediately
-      uploadDocumentsMutation.mutate(files);
+      uploadDocumentsMutation.mutate(fileArray);
       e.target.value = ''; // Reset input
     } else {
       console.log('No files selected');
@@ -117,7 +119,7 @@ export default function NotesDocuments() {
 
   const handleUploadDocuments = () => {
     if (selectedFiles) {
-      uploadDocumentsMutation.mutate(selectedFiles);
+      uploadDocumentsMutation.mutate(Array.from(selectedFiles));
     }
   };
 
@@ -295,7 +297,7 @@ export default function NotesDocuments() {
           multiple 
           className="hidden" 
           onChange={handleFileChange}
-          accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.csv"
+          accept="*"
         />
         
         <p className="text-xs text-slate-500 mt-2">Press Enter to send, Shift+Enter for new line</p>
