@@ -1,34 +1,16 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { 
   Eye, 
   Trash2, 
-  FileText, 
   Search, 
-  Download, 
-  Copy,
   File
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
 interface Campaign {
   id: number;
@@ -38,31 +20,14 @@ interface Campaign {
   createdAt: string;
 }
 
-interface CampaignData {
-  id: number;
-  name: string;
-  data: {
-    headers: string[];
-    rows: Record<string, string>[];
-    fieldMappings: Record<string, string>;
-  };
-  createdAt: string;
-}
-
 export default function CampaignList() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCampaign, setSelectedCampaign] = useState<CampaignData | null>(null);
-  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const { data: campaigns = [], isLoading } = useQuery({
     queryKey: ['/api/campaigns'],
-  });
-
-  const { data: campaignData, isLoading: isLoadingData } = useQuery({
-    queryKey: ['/api/campaigns', selectedCampaign?.id],
-    enabled: !!selectedCampaign?.id,
   });
 
   const deleteCampaignMutation = useMutation({
@@ -90,9 +55,8 @@ export default function CampaignList() {
     campaign.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleViewData = async (campaign: Campaign) => {
-    setSelectedCampaign(campaign as any);
-    setIsViewDialogOpen(true);
+  const handleViewData = (campaign: Campaign) => {
+    setLocation(`/campaign/${campaign.id}`);
   };
 
   const handleDelete = (id: number) => {
@@ -101,62 +65,7 @@ export default function CampaignList() {
     }
   };
 
-  const handleCopyData = () => {
-    if (!(campaignData as any)?.data) return;
 
-    const { headers, rows } = (campaignData as any).data;
-    
-    // Create tab-separated values format for easy pasting into spreadsheets
-    const headerRow = headers.join('\t');
-    const dataRows = rows.map((row: any) => 
-      headers.map((header: string) => row[header] || '').join('\t')
-    );
-    
-    const tsvContent = [headerRow, ...dataRows].join('\n');
-    
-    navigator.clipboard.writeText(tsvContent).then(() => {
-      toast({
-        title: "Data Copied",
-        description: "Campaign data copied to clipboard. You can now paste it into Excel or Google Sheets.",
-      });
-    }).catch(() => {
-      toast({
-        title: "Copy Failed",
-        description: "Failed to copy data to clipboard",
-        variant: "destructive"
-      });
-    });
-  };
-
-  const handleExportCSV = () => {
-    if (!(campaignData as any)?.data) return;
-
-    const { headers, rows } = (campaignData as any).data;
-    
-    // Create CSV content
-    const csvContent = [
-      headers.map((h: string) => `"${h}"`).join(','),
-      ...rows.map((row: any) => 
-        headers.map((header: string) => `"${(row[header] || '').replace(/"/g, '""')}"`).join(',')
-      )
-    ].join('\n');
-
-    // Create and trigger download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${(campaignData as any).name}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    toast({
-      title: "Export Successful",
-      description: "Campaign data exported as CSV file",
-    });
-  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -265,82 +174,6 @@ export default function CampaignList() {
           )}
         </div>
       </div>
-
-      {/* Data View Dialog */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-7xl max-h-[90vh] overflow-hidden">
-          <DialogHeader>
-            <DialogTitle className="flex items-center">
-              <FileText className="mr-2 h-5 w-5" />
-              {selectedCampaign?.name}
-            </DialogTitle>
-            <DialogDescription>
-              View and export campaign data
-            </DialogDescription>
-          </DialogHeader>
-          
-          {isLoadingData ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="animate-spin h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-            </div>
-          ) : (campaignData as any)?.data ? (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">
-                  {(campaignData as any).data.rows.length} records
-                </span>
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleCopyData}
-                  >
-                    <Copy className="h-4 w-4 mr-1" />
-                    Copy Data
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleExportCSV}
-                  >
-                    <Download className="h-4 w-4 mr-1" />
-                    Export CSV
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="border rounded-lg overflow-auto max-h-[60vh]">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {(campaignData as any).data.headers.map((header: string, index: number) => (
-                        <TableHead key={index} className="font-medium">
-                          {header}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {(campaignData as any).data.rows.map((row: any, index: number) => (
-                      <TableRow key={index}>
-                        {(campaignData as any).data.headers.map((header: string, cellIndex: number) => (
-                          <TableCell key={cellIndex} className="text-sm">
-                            {row[header] || ''}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              Failed to load campaign data
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
