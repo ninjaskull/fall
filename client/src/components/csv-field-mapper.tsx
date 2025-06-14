@@ -225,11 +225,8 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="__unmapped__" className="text-slate-500">
-                            <span className="flex items-center gap-2">
-                              <X className="h-4 w-4" />
-                              Don't map this field
-                            </span>
+                          <SelectItem value="__unmapped__">
+                            Don't map this field
                           </SelectItem>
                           {validHeaders.map((header, index) => {
                             const isUsed = Object.values(mappings).includes(header) && mappings[standardField] !== header;
@@ -238,12 +235,8 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                                 key={`req-${standardField}-${header}-${index}`} 
                                 value={header}
                                 disabled={isUsed}
-                                className={isUsed ? "text-slate-400" : ""}
                               >
-                                <span className="flex items-center gap-2">
-                                  {isUsed && <span className="text-xs">(already used)</span>}
-                                  <span className={isUsed ? "line-through" : ""}>{header}</span>
-                                </span>
+                                {isUsed ? `${header} (already used)` : header}
                               </SelectItem>
                             );
                           })}
@@ -307,11 +300,8 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="__unmapped__" className="text-slate-500">
-                            <span className="flex items-center gap-2">
-                              <X className="h-4 w-4" />
-                              Don't map this field
-                            </span>
+                          <SelectItem value="__unmapped__">
+                            Don't map this field
                           </SelectItem>
                           {validHeaders.map((header, index) => {
                             const isUsed = Object.values(mappings).includes(header) && mappings[standardField] !== header;
@@ -320,12 +310,8 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                                 key={`opt-${standardField}-${header}-${index}`} 
                                 value={header}
                                 disabled={isUsed}
-                                className={isUsed ? "text-slate-400" : ""}
                               >
-                                <span className="flex items-center gap-2">
-                                  {isUsed && <span className="text-xs">(already used)</span>}
-                                  <span className={isUsed ? "line-through" : ""}>{header}</span>
-                                </span>
+                                {isUsed ? `${header} (already used)` : header}
                               </SelectItem>
                             );
                           })}
