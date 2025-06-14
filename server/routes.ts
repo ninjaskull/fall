@@ -48,7 +48,7 @@ const upload = multer({
 });
 
 // Password for dashboard access
-const DASHBOARD_PASSWORD = process.env.DASHBOARD_PASSWORD || 'admin123';
+const DASHBOARD_PASSWORD = process.env.DASHBOARD_PASSWORD || 'demo123';
 
 // Function to parse CSV line with proper handling of quoted fields
 function parseCSVLine(line: string): string[] {

@@ -288,7 +288,7 @@ export default function Landing() {
                 className="cursor-pointer hover:text-white transition-colors"
               >
                 2025
-              </span> fallowl. All rights reserved.
+              </span> FallOwl. All rights reserved.
             </p>
             
             {showAdminAccess && (

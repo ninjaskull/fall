@@ -48,7 +48,7 @@ export default function Dashboard() {
               <Database className="text-white h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">fallowl Dashboard</h1>
+              <h1 className="text-2xl font-bold text-slate-900">FallOwl Dashboard</h1>
               <p className="text-sm text-slate-600">Campaign Management System</p>
             </div>
           </div>
