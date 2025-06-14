@@ -1,4 +1,4 @@
-# Campaign Management Application
+# fallowl
 
 A secure full-stack web application for intelligent campaign data management with streamlined file handling and user-centric design.
 

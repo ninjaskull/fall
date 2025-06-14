@@ -48,8 +48,8 @@ export default function Dashboard() {
               <Database className="text-white h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-              <p className="text-sm text-slate-600">Trust me its made by Me</p>
+              <h1 className="text-2xl font-bold text-slate-900">fallowl Dashboard</h1>
+              <p className="text-sm text-slate-600">Campaign Management System</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">

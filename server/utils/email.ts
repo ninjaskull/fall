@@ -25,8 +25,8 @@ export async function sendContactFormEmail(data: ContactFormData): Promise<boole
     const sendSmtpEmail = new brevo.SendSmtpEmail();
     
     sendSmtpEmail.subject = "New Contact Form Submission";
-    sendSmtpEmail.to = [{ email: "new@fallowl.com", name: "Fallowl Team" }];
-    sendSmtpEmail.sender = { name: "NeuralTech Solutions", email: "noreply@fallowl.com" };
+    sendSmtpEmail.to = [{ email: "new@fallowl.com", name: "fallowl Team" }];
+    sendSmtpEmail.sender = { name: "fallowl", email: "noreply@fallowl.com" };
     sendSmtpEmail.htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #333;">New Contact Form Submission</h2>
