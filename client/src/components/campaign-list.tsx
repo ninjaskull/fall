@@ -2,11 +2,14 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import { 
   Eye, 
   Trash2, 
   Search, 
-  File
+  File,
+  Upload,
+  CloudUpload
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -22,6 +25,7 @@ interface Campaign {
 
 export default function CampaignList() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -46,6 +50,33 @@ export default function CampaignList() {
       toast({
         title: "Delete Failed",
         description: error.message || "Failed to delete campaign",
+        variant: "destructive"
+      });
+    }
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: async (files: FileList) => {
+      const formData = new FormData();
+      Array.from(files).forEach(file => {
+        formData.append('csv', file);
+      });
+      
+      const response = await apiRequest('POST', '/api/campaigns/upload', formData);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Upload Successful",
+        description: `${data.campaigns.length} campaign(s) processed successfully`,
+      });
+      setSelectedFiles(null);
+      queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });
+    },
+    onError: (error) => {
+      toast({
+        title: "Upload Failed",
+        description: error.message || "Failed to upload campaign data",
         variant: "destructive"
       });
     }
