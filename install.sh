@@ -76,11 +76,28 @@ else
     PACKAGE_MANAGER="unknown"
 fi
 
-# Check Node.js installation
-if ! command -v node &> /dev/null; then
-    print_error "Node.js is not installed. Please install Node.js 18+ first:"
-    print_info "Visit: https://nodejs.org/"
-    exit 1
+# Install Node.js 18 if needed
+if ! command -v node &> /dev/null || [[ $(node -v | cut -d'v' -f2 | cut -d'.' -f1) -lt 18 ]]; then
+    print_info "Installing Node.js 18..."
+    if [[ "$PACKAGE_MANAGER" == "yum" ]]; then
+        curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+        if [[ "$INSTALL_AS_ROOT" == true ]]; then
+            yum install -y nodejs
+        else
+            sudo yum install -y nodejs
+        fi
+    elif [[ "$PACKAGE_MANAGER" == "apt" ]]; then
+        curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+        if [[ "$INSTALL_AS_ROOT" == true ]]; then
+            apt-get install -y nodejs
+        else
+            sudo apt-get install -y nodejs
+        fi
+    else
+        print_error "Please install Node.js 18+ manually from https://nodejs.org/"
+        exit 1
+    fi
+    print_status "Node.js installed: $(node -v)"
 fi
 
 NODE_VERSION=$(node --version | cut -d'v' -f2 | cut -d'.' -f1)
