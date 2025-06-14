@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Brain, Cpu, Database, Globe, Network, Zap, ArrowRight, CheckCircle, Star, Users, Award, Layers, Shield, Rocket } from "lucide-react";
+import { Brain, Cpu, Database, Globe, Network, Zap, ArrowRight, CheckCircle, Star, Users, Award, Layers, Shield, Rocket, PawPrint } from "lucide-react";
 import { setAuthenticated } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
@@ -308,7 +308,7 @@ export default function Landing() {
                   disabled={authMutation.isPending}
                   className="bg-slate-700 hover:bg-slate-600 border-slate-600 text-white"
                 >
-                  {authMutation.isPending ? "..." : "→"}
+                  {authMutation.isPending ? "..." : <PawPrint className="w-4 h-4" />}
                 </Button>
               </form>
             )}
