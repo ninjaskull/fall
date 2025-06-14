@@ -122,100 +122,229 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>Map CSV Fields</span>
+            <div className="flex flex-col gap-1">
+              <span>Map CSV Fields</span>
+              <span className="text-sm font-normal text-slate-600">
+                File: <span className="font-medium text-slate-800">{fileName}</span>
+              </span>
+            </div>
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="h-4 w-4" />
             </Button>
           </DialogTitle>
-          <p className="text-sm text-slate-600">
-            Map your CSV columns to standard campaign fields for <strong>{fileName}</strong>. 
-            Required fields are marked with *.
+          <p className="text-sm text-slate-600 mt-2">
+            Map your CSV columns to standard campaign fields. Required fields are marked with 
+            <span className="text-red-500 font-medium"> *</span>.
           </p>
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Summary Stats */}
-          <div className="flex gap-4 p-4 bg-slate-50 rounded-lg">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium text-green-700">
-                {autoDetectedCount} fields auto-detected
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-700">
-                {getMappedCount()} fields mapped
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-orange-600" />
-              <span className="text-sm font-medium text-orange-700">
-                {getSkippedCount()} fields will be skipped
-              </span>
+          {/* CSV Headers Preview */}
+          <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 className="font-medium text-blue-900 mb-2">CSV Columns Found ({csvHeaders.length})</h3>
+            <div className="flex flex-wrap gap-2">
+              {csvHeaders.map((header, index) => (
+                <span key={`${header}-${index}`} className="px-2 py-1 bg-white border border-blue-200 rounded text-sm text-blue-800">
+                  {header}
+                </span>
+              ))}
             </div>
           </div>
 
-          {/* Field Mappings */}
-          <div className="grid gap-4">
-            {STANDARD_FIELDS.map(standardField => {
-              const isRequired = REQUIRED_FIELDS.includes(standardField);
-              const currentMapping = mappings[standardField];
-              const isAutoDetected = csvHeaders.includes(currentMapping || '');
+          {/* Summary Stats */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="p-3 bg-green-50 rounded-lg border border-green-200">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span className="text-sm font-medium text-green-700">Auto-detected</span>
+              </div>
+              <p className="text-lg font-semibold text-green-800 mt-1">{autoDetectedCount}</p>
+            </div>
+            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-700">Mapped</span>
+              </div>
+              <p className="text-lg font-semibold text-blue-800 mt-1">{getMappedCount()}</p>
+            </div>
+            <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-orange-600" />
+                <span className="text-sm font-medium text-orange-700">Skipped</span>
+              </div>
+              <p className="text-lg font-semibold text-orange-800 mt-1">{getSkippedCount()}</p>
+            </div>
+          </div>
 
-              return (
-                <div key={standardField} className="flex items-center gap-4 p-4 border rounded-lg">
-                  <div className="flex-1">
+          {/* Required Fields */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+              <span className="text-red-500">*</span>
+              Required Fields
+            </h3>
+            <div className="grid gap-3">
+              {REQUIRED_FIELDS.map(standardField => {
+                const currentMapping = mappings[standardField];
+                const isAutoDetected = csvHeaders.includes(currentMapping || '');
+
+                return (
+                  <div key={standardField} className="grid grid-cols-2 gap-4 items-center p-4 border-2 border-red-100 rounded-lg hover:bg-red-50 transition-colors">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">
+                      <span className="font-medium text-slate-700">
                         {standardField}
-                        {isRequired && <span className="text-red-500">*</span>}
+                        <span className="text-red-500 ml-1">*</span>
                       </span>
                       {currentMapping && isAutoDetected && (
-                        <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
-                          Auto-detected
+                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
+                          ✓ Auto-detected
                         </Badge>
+                      )}
+                      <Badge variant="outline" className="text-xs text-red-600 border-red-200">
+                        Required
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={currentMapping || "__unmapped__"}
+                        onValueChange={(value) => handleMappingChange(standardField, value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder={`Map to CSV column...`}>
+                            {currentMapping ? (
+                              <span className="flex items-center gap-2">
+                                <span className="text-blue-600">→</span>
+                                <span className="font-medium">{currentMapping}</span>
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">Select CSV column...</span>
+                            )}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__unmapped__" className="text-slate-500">
+                            <span className="flex items-center gap-2">
+                              <X className="h-4 w-4" />
+                              Don't map this field
+                            </span>
+                          </SelectItem>
+                          {csvHeaders.map(header => {
+                            const isUsed = Object.values(mappings).includes(header) && mappings[standardField] !== header;
+                            return (
+                              <SelectItem 
+                                key={header} 
+                                value={header}
+                                disabled={isUsed}
+                                className={isUsed ? "text-slate-400" : ""}
+                              >
+                                <span className="flex items-center gap-2">
+                                  {isUsed && <span className="text-xs">(already used)</span>}
+                                  <span className={isUsed ? "line-through" : ""}>{header}</span>
+                                </span>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+
+                      {currentMapping && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveMapping(standardField)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          title="Remove mapping"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       )}
                     </div>
                   </div>
-                  
-                  <div className="flex-1">
-                    <Select
-                      value={currentMapping || "__unmapped__"}
-                      onValueChange={(value) => handleMappingChange(standardField, value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select CSV column" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="__unmapped__">-- Not mapped --</SelectItem>
-                        {getAvailableHeaders(standardField).map(header => (
-                          <SelectItem key={header} value={header}>
-                            {header}
-                          </SelectItem>
-                        ))}
-                        {currentMapping && (
-                          <SelectItem value={currentMapping}>
-                            {currentMapping}
-                          </SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                );
+              })}
+            </div>
+          </div>
 
-                  {currentMapping && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleRemoveMapping(standardField)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              );
-            })}
+          {/* Optional Fields */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-slate-900">Optional Fields</h3>
+            <div className="grid gap-3">
+              {STANDARD_FIELDS.filter(field => !REQUIRED_FIELDS.includes(field)).map(standardField => {
+                const currentMapping = mappings[standardField];
+                const isAutoDetected = csvHeaders.includes(currentMapping || '');
+
+                return (
+                  <div key={standardField} className="grid grid-cols-2 gap-4 items-center p-4 border rounded-lg hover:bg-slate-50 transition-colors">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-slate-700">
+                        {standardField}
+                      </span>
+                      {currentMapping && isAutoDetected && (
+                        <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
+                          ✓ Auto-detected
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={currentMapping || "__unmapped__"}
+                        onValueChange={(value) => handleMappingChange(standardField, value)}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder={`Map to CSV column...`}>
+                            {currentMapping ? (
+                              <span className="flex items-center gap-2">
+                                <span className="text-blue-600">→</span>
+                                <span className="font-medium">{currentMapping}</span>
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">Select CSV column...</span>
+                            )}
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__unmapped__" className="text-slate-500">
+                            <span className="flex items-center gap-2">
+                              <X className="h-4 w-4" />
+                              Don't map this field
+                            </span>
+                          </SelectItem>
+                          {csvHeaders.map(header => {
+                            const isUsed = Object.values(mappings).includes(header) && mappings[standardField] !== header;
+                            return (
+                              <SelectItem 
+                                key={header} 
+                                value={header}
+                                disabled={isUsed}
+                                className={isUsed ? "text-slate-400" : ""}
+                              >
+                                <span className="flex items-center gap-2">
+                                  {isUsed && <span className="text-xs">(already used)</span>}
+                                  <span className={isUsed ? "line-through" : ""}>{header}</span>
+                                </span>
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+
+                      {currentMapping && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleRemoveMapping(standardField)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          title="Remove mapping"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Required Fields Warning */}
