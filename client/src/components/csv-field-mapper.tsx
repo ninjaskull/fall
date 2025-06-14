@@ -35,7 +35,16 @@ const REQUIRED_FIELDS = ["First Name", "Last Name", "Email"];
 export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fileName }: CsvFieldMapperProps) {
   const [mappings, setMappings] = useState<Record<string, string>>({});
   const [autoDetectedCount, setAutoDetectedCount] = useState(0);
+  const [manualOverrides, setManualOverrides] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+
+  // Reset state when dialog closes
+  const handleClose = () => {
+    setMappings({});
+    setAutoDetectedCount(0);
+    setManualOverrides(new Set());
+    onClose();
+  };
 
   // Filter out empty headers
   const validHeaders = csvHeaders.filter(header => header && header.trim() !== '');
@@ -48,6 +57,11 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
       let detectedCount = 0;
 
       STANDARD_FIELDS.forEach(standardField => {
+        // Skip if user has manually overridden this field
+        if (manualOverrides.has(standardField)) {
+          return;
+        }
+
         const normalizedStandard = standardField.toLowerCase().replace(/[^a-z0-9]/g, '');
         
         const matchedHeader = validHeaders.find(header => {
@@ -79,12 +93,17 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
       });
 
       console.log('Auto-detected mappings:', autoMappings);
-      setMappings(autoMappings);
+      setMappings(prev => ({ ...prev, ...autoMappings }));
       setAutoDetectedCount(detectedCount);
     }
-  }, [validHeaders]);
+  }, [validHeaders, manualOverrides]);
 
   const handleMappingChange = (standardField: string, csvHeader: string) => {
+    console.log(`Manual mapping change: ${standardField} -> ${csvHeader}`);
+    
+    // Mark this field as manually overridden
+    setManualOverrides(prev => new Set([...prev, standardField]));
+    
     setMappings(prev => {
       if (csvHeader === "__unmapped__") {
         const newMappings = { ...prev };
@@ -99,6 +118,11 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
   };
 
   const handleRemoveMapping = (standardField: string) => {
+    console.log(`Removing mapping for: ${standardField}`);
+    
+    // Mark this field as manually overridden (to prevent auto-detection from re-adding it)
+    setManualOverrides(prev => new Set([...prev, standardField]));
+    
     setMappings(prev => {
       const newMappings = { ...prev };
       delete newMappings[standardField];
@@ -125,7 +149,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" style={{ zIndex: 100 }}>
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
@@ -135,7 +159,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                 File: <span className="font-medium text-slate-800">{fileName}</span>
               </span>
             </div>
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button variant="ghost" size="sm" onClick={handleClose}>
               <X className="h-4 w-4" />
             </Button>
           </DialogTitle>
@@ -337,7 +361,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
 
           {/* Action Buttons */}
           <div className="flex justify-between pt-4 border-t">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={handleClose}>
               Cancel
             </Button>
             <Button 
