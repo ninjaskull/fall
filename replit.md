@@ -138,6 +138,12 @@ Changelog:
   - Dashboard header back to "Campaign Manager" with professional branding
   - Navigation tabs restored to: Overview, Files, Notes
   - All components now feature clean, business-appropriate aesthetic while maintaining full functionality
+- June 14, 2025. Enhanced SPA routing implementation:
+  - Fixed CSV field mapping dropdown selection issues with z-index adjustments
+  - Replaced traditional anchor tags with smooth scrolling for landing page navigation
+  - Ensured all navigation uses wouter's setLocation for seamless SPA experience
+  - Added manual override tracking to prevent auto-detection conflicts in field mapping
+  - All page transitions now occur without reloads, maintaining application state
 
 ## User Preferences
 

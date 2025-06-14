@@ -127,9 +127,24 @@ export default function Landing() {
               <span className="text-xl font-bold text-slate-900">Acme Web Agency</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#services" className="text-slate-600 hover:text-slate-900 transition-colors">Services</a>
-              <a href="#portfolio" className="text-slate-600 hover:text-slate-900 transition-colors">Portfolio</a>
-              <a href="#testimonials" className="text-slate-600 hover:text-slate-900 transition-colors">Testimonials</a>
+              <button 
+                onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
+                className="text-slate-600 hover:text-slate-900 transition-colors"
+              >
+                Services
+              </button>
+              <button 
+                onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
+                className="text-slate-600 hover:text-slate-900 transition-colors"
+              >
+                Portfolio
+              </button>
+              <button 
+                onClick={() => document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' })}
+                className="text-slate-600 hover:text-slate-900 transition-colors"
+              >
+                Testimonials
+              </button>
               <Button>Get Started</Button>
             </div>
           </div>
@@ -148,8 +163,21 @@ export default function Landing() {
               We craft cutting-edge web applications and digital experiences that drive results for your business. From concept to deployment, we've got you covered.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button size="lg" className="px-8 py-4">Start Your Project</Button>
-              <Button variant="outline" size="lg" className="px-8 py-4">View Our Work</Button>
+              <Button 
+                size="lg" 
+                className="px-8 py-4"
+                onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                Start Your Project
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg" 
+                className="px-8 py-4"
+                onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
+              >
+                View Our Work
+              </Button>
             </div>
           </div>
           
