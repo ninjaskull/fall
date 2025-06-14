@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { FileText, Paperclip, Download, Send, Plus, User, File, MessageSquare, PawPrint, Heart } from "lucide-react";
+import { FileText, Paperclip, Download, Send, Plus, User, File, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -161,22 +161,19 @@ export default function NotesDocuments() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)] bg-white/70 rounded-lg border border-pink-200">
+    <div className="flex flex-col h-[calc(100vh-200px)] bg-white rounded-lg border">
       {/* Chat Header */}
-      <div className="flex items-center justify-between p-4 border-b border-pink-200 bg-pink-50 rounded-t-lg">
+      <div className="flex items-center justify-between p-4 border-b bg-slate-50 rounded-t-lg">
         <div className="flex items-center space-x-3">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-pink-100 text-pink-600">
-              <PawPrint className="h-5 w-5" />
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-purple-100 text-purple-600">
+              <MessageSquare className="h-4 w-4" />
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-semibold text-pink-900 flex items-center gap-2">
-              🐕 Pup Diary & Memory Box
-              <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
-            </h3>
-            <p className="text-sm text-pink-600">
-              🦴 {allMessages.length} memory{allMessages.length !== 1 ? 's' : ''} saved
+            <h3 className="font-semibold text-slate-900">Campaign Community</h3>
+            <p className="text-sm text-slate-500">
+              {allMessages.length} message{allMessages.length !== 1 ? 's' : ''}
             </p>
           </div>
         </div>
@@ -186,14 +183,12 @@ export default function NotesDocuments() {
             size="sm"
             onClick={() => document.getElementById('documentFileInput')?.click()}
             disabled={uploadDocumentsMutation.isPending}
-            className="text-pink-600 hover:text-pink-800 hover:bg-pink-100"
           >
             {uploadDocumentsMutation.isPending ? (
               <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
             ) : (
               <Paperclip className="h-4 w-4" />
             )}
-            📎
           </Button>
         </div>
       </div>
@@ -202,48 +197,48 @@ export default function NotesDocuments() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {allMessages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <div className="w-16 h-16 bg-pink-100 rounded-full flex items-center justify-center mb-4">
-              <PawPrint className="h-8 w-8 text-pink-400" />
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
+              <MessageSquare className="h-8 w-8 text-slate-400" />
             </div>
-            <h3 className="font-medium text-pink-900 mb-2">🏠 No memories yet!</h3>
-            <p className="text-pink-600 text-sm">🐕 Start sharing pup thoughts and photos by writing a note or uploading files!</p>
+            <h3 className="font-medium text-slate-900 mb-2">No messages yet</h3>
+            <p className="text-slate-500 text-sm">Start the conversation by adding a note or uploading a file</p>
           </div>
         ) : (
           allMessages.map((message: any) => (
             <div key={`${message.type}-${message.id}`} className="flex items-start space-x-3">
               <Avatar className="h-8 w-8 mt-1">
-                <AvatarFallback className="bg-pink-100 text-pink-600">
-                  {message.type === 'note' ? <PawPrint className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
+                <AvatarFallback className="bg-blue-100 text-blue-600">
+                  {message.type === 'note' ? <User className="h-4 w-4" /> : <File className="h-4 w-4" />}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <div className="bg-pink-50 rounded-lg p-3 border border-pink-100">
+                <div className="bg-slate-50 rounded-lg p-3">
                   {message.type === 'note' ? (
                     <div>
-                      <p className="text-pink-900">📝 {message.content}</p>
+                      <p className="text-slate-900">{message.content}</p>
                     </div>
                   ) : (
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2 min-w-0">
-                        <FileText className="h-4 w-4 text-pink-500 flex-shrink-0" />
+                        <FileText className="h-4 w-4 text-slate-500 flex-shrink-0" />
                         <div className="min-w-0">
-                          <p className="font-medium text-pink-900 truncate">📄 {message.name || message.originalName}</p>
-                          <p className="text-sm text-pink-600">{formatFileSize(message.size || message.fileSize)}</p>
+                          <p className="font-medium text-slate-900 truncate">{message.name || message.originalName}</p>
+                          <p className="text-sm text-slate-500">{formatFileSize(message.size || message.fileSize)}</p>
                         </div>
                       </div>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDownload(message.id, message.name || message.originalName)}
-                        className="flex-shrink-0 text-pink-600 hover:text-pink-800 hover:bg-pink-100"
+                        className="flex-shrink-0"
                       >
                         <Download className="h-4 w-4" />
                       </Button>
                     </div>
                   )}
                 </div>
-                <p className="text-xs text-pink-500 mt-1">
-                  🕐 {new Date(message.createdAt).toLocaleDateString()} at {new Date(message.createdAt).toLocaleTimeString()}
+                <p className="text-xs text-slate-500 mt-1">
+                  {new Date(message.createdAt).toLocaleDateString()} at {new Date(message.createdAt).toLocaleTimeString()}
                 </p>
               </div>
             </div>
@@ -253,7 +248,7 @@ export default function NotesDocuments() {
       </div>
 
       {/* Message Input */}
-      <div className="border-t border-pink-200 p-4 bg-pink-50/50">
+      <div className="border-t p-4">
         <div className="flex items-end space-x-2">
           {/* Attachment Button */}
           <Button
@@ -262,22 +257,22 @@ export default function NotesDocuments() {
             size="sm"
             onClick={() => document.getElementById('documentFileInput')?.click()}
             disabled={uploadDocumentsMutation.isPending}
-            className="mb-2 h-10 w-10 p-0 rounded-full hover:bg-pink-100 text-pink-600"
+            className="mb-2 h-10 w-10 p-0 rounded-full hover:bg-slate-100"
           >
             {uploadDocumentsMutation.isPending ? (
-              <div className="animate-spin h-4 w-4 border-2 border-pink-600 border-t-transparent rounded-full" />
+              <div className="animate-spin h-4 w-4 border-2 border-slate-600 border-t-transparent rounded-full" />
             ) : (
-              <Paperclip className="h-5 w-5" />
+              <Paperclip className="h-5 w-5 text-slate-600" />
             )}
           </Button>
           
           {/* Message Input */}
           <div className="flex-1 relative">
             <Textarea
-              placeholder="🐕 Share what's on your pup's mind..."
+              placeholder="Type a message..."
               value={noteContent}
               onChange={(e) => setNoteContent(e.target.value)}
-              className="resize-none pr-12 min-h-[60px] max-h-32 border-pink-200 focus:border-pink-400"
+              className="resize-none pr-12 min-h-[60px] max-h-32"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
@@ -290,7 +285,7 @@ export default function NotesDocuments() {
               onClick={handleSaveNote}
               disabled={!noteContent.trim() || saveNoteMutation.isPending}
               size="sm"
-              className="absolute right-2 bottom-2 h-8 w-8 p-0 rounded-full bg-pink-500 hover:bg-pink-600"
+              className="absolute right-2 bottom-2 h-8 w-8 p-0 rounded-full"
             >
               {saveNoteMutation.isPending ? (
                 <div className="animate-spin h-3 w-3 border-2 border-white border-t-transparent rounded-full" />
@@ -311,7 +306,7 @@ export default function NotesDocuments() {
           accept="*"
         />
         
-        <p className="text-xs text-pink-600 mt-2">🦴 Press Enter to bark, Shift+Enter for new line</p>
+        <p className="text-xs text-slate-500 mt-2">Press Enter to send, Shift+Enter for new line</p>
       </div>
     </div>
   );

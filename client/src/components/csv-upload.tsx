@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Upload, CloudUpload, PawPrint, Heart } from "lucide-react";
+import { Upload, CloudUpload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -141,35 +141,31 @@ export default function CsvUpload() {
 
   return (
     <div className="space-y-8">
-      <Card className="hover:shadow-lg transition-shadow border-pink-200 bg-white/70">
+      <Card className="hover:shadow-lg transition-shadow">
         <CardHeader>
           <CardTitle className="flex items-center">
-            <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center mr-4">
-              <PawPrint className="text-pink-600 text-xl" />
+            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mr-4">
+              <Upload className="text-blue-600 text-xl" />
             </div>
-            🍖 Feed Your Pup Some Data Treats!
-            <Heart className="h-5 w-5 text-pink-500 fill-pink-500 ml-2" />
+            Upload Campaign Data
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-pink-700 mb-6">
-            🐕 Upload CSV files with your furry friend campaign data! Our smart pup will sniff out the headers and help you organize everything perfectly.
+          <p className="text-slate-600 mb-6">
+            Upload CSV files with campaign data. Our system will automatically detect headers and help you map fields.
           </p>
           
           <div 
-            className="border-2 border-dashed border-pink-300 rounded-xl p-8 text-center hover:border-pink-400 transition-colors cursor-pointer bg-pink-50/50"
+            className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center hover:border-blue-300 transition-colors cursor-pointer"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
             onClick={() => document.getElementById('csvFileInput')?.click()}
           >
-            <div className="flex items-center justify-center mb-3">
-              <PawPrint className="text-pink-400 text-3xl mr-2" />
-              <CloudUpload className="text-pink-400 text-3xl" />
-            </div>
-            <p className="text-pink-700 font-medium">
-              {selectedFiles ? `🎾 ${selectedFiles.length} treat(s) ready to share!` : "🐕 Click to bring treats (CSV files)"}
+            <CloudUpload className="text-slate-400 text-3xl mb-3 mx-auto" />
+            <p className="text-slate-600 font-medium">
+              {selectedFiles ? `${selectedFiles.length} file(s) selected` : "Click to upload CSV files"}
             </p>
-            <p className="text-pink-500 text-sm">or drag and drop your doggy data here! 🦴</p>
+            <p className="text-slate-400 text-sm">or drag and drop your files here</p>
             <Input 
               type="file" 
               id="csvFileInput" 
@@ -181,28 +177,26 @@ export default function CsvUpload() {
           
           {selectedFiles && (
             <div className="space-y-2">
-              <p className="font-medium text-pink-800 flex items-center gap-2">
-                🎾 Ready Treats:
-              </p>
+              <p className="font-medium text-slate-900">Selected Files:</p>
               {Array.from(selectedFiles).map((file, index) => (
-                <div key={index} className="text-sm text-pink-700 bg-pink-100 p-3 rounded-lg border border-pink-200">
-                  🍖 {file.name} ({(file.size / 1024).toFixed(1)} KB)
+                <div key={index} className="text-sm text-slate-600 bg-slate-50 p-2 rounded">
+                  {file.name} ({(file.size / 1024).toFixed(1)} KB)
                 </div>
               ))}
             </div>
           )}
           
-          <div className="flex items-center justify-between text-sm text-pink-600 bg-pink-50 p-3 rounded-lg">
-            <span>🐕 Only CSV treats allowed!</span>
-            <span>📏 Max: 10MB per treat</span>
+          <div className="flex items-center justify-between text-sm text-slate-500">
+            <span>Supported: CSV files only</span>
+            <span>Max: 10MB per file</span>
           </div>
           
           <Button 
             onClick={handleUpload}
             disabled={!selectedFiles || previewMutation.isPending}
-            className="w-full bg-pink-500 hover:bg-pink-600"
+            className="w-full"
           >
-            {previewMutation.isPending ? "🐕 Sniffing treats..." : "🦴 Share Treats & Map Fields"}
+            {previewMutation.isPending ? "Analyzing..." : "Upload & Map Fields"}
           </Button>
         </CardContent>
       </Card>
