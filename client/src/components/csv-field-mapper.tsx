@@ -115,7 +115,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" style={{ zIndex: 100 }}>
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <div className="flex flex-col gap-1">
@@ -208,7 +208,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select CSV column..." />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="z-[200]" position="popper" sideOffset={4}>
                           <SelectItem value="__unmapped__">
                             Don't map this field
                           </SelectItem>
@@ -274,7 +274,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select CSV column..." />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="z-[200]" position="popper" sideOffset={4}>
                           <SelectItem value="__unmapped__">
                             Don't map this field
                           </SelectItem>
