@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Simple deployment script for Campaign Management App
+# Simple deployment script for FallOwl
 # Works on any Linux server with Docker
 
 set -e
 
-echo "🚀 Starting deployment of Campaign Management App..."
+echo "🚀 Starting deployment of FallOwl..."
 
 # Check if Docker is installed
 if ! command -v docker &> /dev/null; then
@@ -35,7 +35,7 @@ POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 
 # App Configuration
-DASHBOARD_PASSWORD=admin123
+DASHBOARD_PASSWORD=demo123
 ENCRYPTION_KEY=$(openssl rand -base64 32)
 
 # Optional: Email Service (Brevo)
@@ -67,7 +67,7 @@ echo "🌐 Your app is now running at:"
 echo "   http://localhost:5000"
 echo ""
 echo "📋 Default credentials:"
-echo "   Dashboard Password: admin123 (change in .env file)"
+echo "   Dashboard Password: demo123 (change in .env file)"
 echo ""
 echo "🔧 To manage your deployment:"
 echo "   View logs:    docker-compose logs -f"
