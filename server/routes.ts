@@ -1,40 +1,43 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import bcrypt from "bcrypt";
-import multer from "multer";
-import path from "path";
-import fs from "fs";
-import { z } from "zod";
-import { encrypt, decrypt } from "./utils/encryption";
-import { deriveTimezone } from "./utils/timezone";
-import { insertCampaignSchema, insertNoteSchema, insertDocumentSchema } from "@shared/schema";
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
+import { storage } from "./storage.js";
+import { encrypt, decrypt } from "./utils/encryption.js";
+import { deriveTimezone } from "./utils/timezone.js";
 
 // Configure multer for file uploads
-const uploadDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const upload = multer({
-  dest: uploadDir,
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
-  },
+const upload = multer({ 
+  dest: 'uploads/',
   fileFilter: (req, file, cb) => {
     console.log('File filter - fieldname:', file.fieldname, 'mimetype:', file.mimetype, 'originalname:', file.originalname);
     
-    // Allow CSV files for campaign upload
-    if (file.fieldname === 'csv' && (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv'))) {
-      cb(null, true);
-    }
-    // Allow all file types for document uploads
-    else if (file.fieldname === 'documents') {
-      cb(null, true); // Accept all file types
-    }
-    else {
-      console.log('File rejected - invalid fieldname:', file.fieldname);
-      cb(null, false);
+    // Only allow CSV files for the csv field
+    if (file.fieldname === 'csv') {
+      if (file.mimetype === 'text/csv' || file.originalname.endsWith('.csv')) {
+        cb(null, true);
+      } else {
+        cb(new Error('Only CSV files are allowed for CSV uploads'));
+      }
+    } else if (file.fieldname === 'document') {
+      // Allow various document types
+      const allowedTypes = [
+        'application/pdf',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'image/jpeg',
+        'image/png',
+        'image/gif'
+      ];
+      
+      if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error('File type not allowed'));
+      }
+    } else {
+      cb(new Error('Invalid file field'));
     }
   }
 });
@@ -117,38 +120,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'CSV file is empty' });
       }
 
-      // Function to parse CSV line with proper handling of quoted fields
-      function parseCSVLine(line: string): string[] {
-        const result = [];
-        let current = '';
-        let inQuotes = false;
-        
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          
-          if (char === '"') {
-            if (inQuotes && line[i + 1] === '"') {
-              // Handle escaped quotes
-              current += '"';
-              i++; // Skip next quote
-            } else {
-              // Toggle quote state
-              inQuotes = !inQuotes;
-            }
-          } else if (char === ',' && !inQuotes) {
-            // Field separator found outside quotes
-            result.push(current.trim());
-            current = '';
-          } else {
-            current += char;
-          }
-        }
-        
-        // Add the last field
-        result.push(current.trim());
-        return result;
-      }
-
       // Parse headers
       const headers = parseCSVLine(lines[0]);
       
@@ -191,38 +162,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (lines.length === 0) {
         return res.status(400).json({ message: 'CSV file is empty' });
-      }
-
-      // Function to parse CSV line with proper handling of quoted fields
-      function parseCSVLine(line: string): string[] {
-        const result = [];
-        let current = '';
-        let inQuotes = false;
-        
-        for (let i = 0; i < line.length; i++) {
-          const char = line[i];
-          
-          if (char === '"') {
-            if (inQuotes && line[i + 1] === '"') {
-              // Handle escaped quotes
-              current += '"';
-              i++; // Skip next quote
-            } else {
-              // Toggle quote state
-              inQuotes = !inQuotes;
-            }
-          } else if (char === ',' && !inQuotes) {
-            // Field separator found outside quotes
-            result.push(current.trim());
-            current = '';
-          } else {
-            current += char;
-          }
-        }
-        
-        // Add the last field
-        result.push(current.trim());
-        return result;
       }
 
       // Parse headers
@@ -324,7 +263,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: campaign.id,
         name: campaign.name,
         data: decryptedData,
-        createdAt: campaign.createdAt
+        createdAt: campaign.createdAt,
+        recordCount: campaign.recordCount
       });
     } catch (error) {
       console.error('Get campaign error:', error);
@@ -394,47 +334,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Upload documents
-  app.post('/api/documents/upload', upload.array('documents'), async (req, res) => {
+  app.post('/api/documents', upload.single('document'), async (req, res) => {
     try {
-      console.log('Document upload request received');
-      console.log('Request body:', req.body);
-      console.log('Request files:', req.files);
-      console.log('Content-Type:', req.headers['content-type']);
-      console.log('Raw request headers:', req.headers);
+      const file = req.file as Express.Multer.File;
+      if (!file) {
+        return res.status(400).json({ message: 'No document uploaded' });
+      }
+
+      // Encrypt file path
+      const encryptedPath = encrypt(file.path);
       
-      const files = req.files as Express.Multer.File[];
-      if (!files || files.length === 0) {
-        console.log('No files found in request');
-        return res.status(400).json({ message: 'No documents uploaded' });
-      }
+      const document = await storage.createDocument({
+        filename: file.filename,
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        fileSize: file.size,
+        encryptedPath
+      });
 
-      const results = [];
-
-      for (const file of files) {
-        // Encrypt file path for security
-        const encryptedPath = encrypt(file.path);
-
-        const document = await storage.createDocument({
-          filename: file.filename,
-          originalName: file.originalname,
-          mimeType: file.mimetype,
-          fileSize: file.size,
-          encryptedPath
-        });
-
-        results.push({
-          id: document.id,
-          originalName: document.originalName,
-          mimeType: document.mimeType,
-          fileSize: document.fileSize,
-          createdAt: document.createdAt
-        });
-      }
-
-      res.json({ documents: results });
+      res.json({
+        id: document.id,
+        name: document.originalName,
+        type: document.mimeType,
+        size: document.fileSize,
+        createdAt: document.createdAt
+      });
     } catch (error) {
       console.error('Document upload error:', error);
-      res.status(500).json({ message: 'Failed to upload documents' });
+      res.status(500).json({ message: 'Failed to upload document' });
     }
   });
 
@@ -444,9 +371,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const documents = await storage.getDocuments();
       res.json(documents.map(doc => ({
         id: doc.id,
-        originalName: doc.originalName,
-        mimeType: doc.mimeType,
-        fileSize: doc.fileSize,
+        name: doc.originalName,
+        type: doc.mimeType,
+        size: doc.fileSize,
         createdAt: doc.createdAt
       })));
     } catch (error) {
@@ -465,19 +392,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: 'Document not found' });
       }
 
+      // Decrypt file path
       const filePath = decrypt(document.encryptedPath);
       
       if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ message: 'File not found on disk' });
+        return res.status(404).json({ message: 'Document file not found' });
       }
 
-      res.setHeader('Content-Disposition', `attachment; filename="${document.originalName}"`);
-      res.setHeader('Content-Type', document.mimeType);
-      
-      const fileStream = fs.createReadStream(filePath);
-      fileStream.pipe(res);
+      res.download(filePath, document.originalName);
     } catch (error) {
-      console.error('Download document error:', error);
+      console.error('Document download error:', error);
       res.status(500).json({ message: 'Failed to download document' });
     }
   });
