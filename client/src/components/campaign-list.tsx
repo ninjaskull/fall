@@ -7,7 +7,8 @@ import {
   Trash2, 
   Search, 
   File,
-  Upload
+  Upload,
+  PawPrint
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -84,12 +85,12 @@ export default function CampaignList() {
   const getFileIcon = (filename: string) => {
     const ext = filename.split('.').pop()?.toLowerCase();
     const colors = [
-      'bg-purple-100 text-purple-600',
-      'bg-blue-100 text-blue-600', 
-      'bg-orange-100 text-orange-600',
-      'bg-green-100 text-green-600',
       'bg-pink-100 text-pink-600',
-      'bg-teal-100 text-teal-600'
+      'bg-orange-100 text-orange-600', 
+      'bg-yellow-100 text-yellow-600',
+      'bg-green-100 text-green-600',
+      'bg-purple-100 text-purple-600',
+      'bg-blue-100 text-blue-600'
     ];
     
     // Use filename to determine consistent color
@@ -99,8 +100,9 @@ export default function CampaignList() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="animate-spin h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+      <div className="flex flex-col items-center justify-center py-12">
+        <PawPrint className="animate-bounce h-8 w-8 text-pink-500 mb-2" />
+        <div className="text-pink-600">🐕 Fetching good pups...</div>
       </div>
     );
   }
@@ -110,26 +112,29 @@ export default function CampaignList() {
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">My files</h1>
+          <h1 className="text-2xl font-semibold text-pink-800 flex items-center gap-2">
+            🎾 My Doggy Treats
+            <PawPrint className="h-6 w-6 text-pink-600" />
+          </h1>
           <div className="flex items-center space-x-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-400 h-4 w-4" />
               <Input
-                placeholder="Search campaigns..."
+                placeholder="🔍 Sniff for campaigns..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-80 border-gray-200"
+                className="pl-10 w-80 border-pink-200 focus:border-pink-400"
               />
             </div>
-            <span className="text-sm text-gray-500">
-              {filteredCampaigns.length} campaigns
+            <span className="text-sm text-pink-600 bg-pink-100 px-3 py-1 rounded-full">
+              🐕 {filteredCampaigns.length} good pups
             </span>
             <Button 
               onClick={() => setShowUpload(!showUpload)}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-pink-500 hover:bg-pink-600"
             >
               <Upload className="mr-2 h-4 w-4" />
-              Upload CSV
+              🍖 Feed New Treats
             </Button>
           </div>
         </div>
@@ -144,25 +149,28 @@ export default function CampaignList() {
 
 
         {/* Campaign List */}
-        <div className="space-y-1">
+        <div className="space-y-2">
           {filteredCampaigns.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
-              {searchTerm ? "No campaigns match your search" : "No campaigns uploaded yet"}
+            <div className="text-center py-12 text-pink-500 bg-pink-50 rounded-lg border-2 border-dashed border-pink-200">
+              <PawPrint className="h-12 w-12 mx-auto mb-4 text-pink-300" />
+              {searchTerm ? "🐕 No pups match your sniff!" : "🏠 No furry friends here yet! Upload some treats to get started."}
             </div>
           ) : (
             filteredCampaigns.map((campaign: Campaign) => (
               <div
                 key={campaign.id}
-                className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 rounded-lg group transition-colors"
+                className="flex items-center justify-between px-4 py-4 hover:bg-pink-50 rounded-lg group transition-colors border border-pink-100 bg-white/50"
               >
                 <div className="flex items-center space-x-3">
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${getFileIcon(campaign.name)}`}>
-                    <File className="h-5 w-5" />
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${getFileIcon(campaign.name)}`}>
+                    <PawPrint className="h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-gray-900">{campaign.name}</h3>
-                    <div className="text-sm text-gray-500">
-                      {campaign.recordCount} records • {formatDate(campaign.createdAt)}
+                    <h3 className="font-medium text-pink-900 flex items-center gap-2">
+                      🐕 {campaign.name}
+                    </h3>
+                    <div className="text-sm text-pink-600 flex items-center gap-1">
+                      🦴 {campaign.recordCount} good pups • {formatDate(campaign.createdAt)}
                     </div>
                   </div>
                 </div>
@@ -171,20 +179,20 @@ export default function CampaignList() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleViewData(campaign)}
-                    className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                    className="text-pink-600 hover:text-pink-800 hover:bg-pink-100"
                   >
                     <Eye className="h-4 w-4 mr-1" />
-                    View
+                    👀 Peek
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(campaign.id)}
                     disabled={deleteCampaignMutation.isPending}
-                    className="text-gray-600 hover:text-red-600 hover:bg-red-50"
+                    className="text-orange-600 hover:text-red-600 hover:bg-red-50"
                   >
                     <Trash2 className="h-4 w-4 mr-1" />
-                    Delete
+                    🗑️ Bye
                   </Button>
                 </div>
               </div>

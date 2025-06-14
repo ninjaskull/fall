@@ -187,34 +187,34 @@ export default function Dashboard() {
 
             {/* Recent Campaigns */}
             {recentCampaigns.length > 0 && (
-              <Card className="bg-white/60 backdrop-blur-sm border-white/20">
+              <Card className="bg-white/70 backdrop-blur-sm border-yellow-200/50">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5 text-slate-600" />
-                    Recent Campaigns
+                    <FileText className="h-5 w-5 text-yellow-600" />
+                    🐾 Recent Pup Adventures
                   </CardTitle>
-                  <CardDescription>Your latest uploaded data</CardDescription>
+                  <CardDescription>Your latest furry friend data uploads!</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {recentCampaigns.map((campaign: any) => (
-                      <div key={campaign.id} className="flex items-center justify-between p-3 bg-white/40 rounded-lg border border-slate-200/50">
+                      <div key={campaign.id} className="flex items-center justify-between p-3 bg-white/50 rounded-lg border border-yellow-200/50">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                            <FileText className="h-4 w-4 text-blue-600" />
+                          <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <PawPrint className="h-4 w-4 text-yellow-600" />
                           </div>
                           <div>
-                            <div className="font-medium text-slate-900">{campaign.name}</div>
-                            <div className="text-sm text-slate-500">{campaign.recordCount} records</div>
+                            <div className="font-medium text-yellow-900">🐕 {campaign.name}</div>
+                            <div className="text-sm text-yellow-600">{campaign.recordCount} good pups • 🦴</div>
                           </div>
                         </div>
                         <Button 
                           variant="ghost" 
                           size="sm"
                           onClick={() => setLocation(`/campaign/${campaign.id}`)}
-                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50"
                         >
-                          View
+                          🔍 Sniff
                         </Button>
                       </div>
                     ))}
@@ -223,9 +223,9 @@ export default function Dashboard() {
                     <Button 
                       variant="outline" 
                       onClick={() => setActiveTab("files")}
-                      className="w-full"
+                      className="w-full border-yellow-200 text-yellow-700 hover:bg-yellow-50"
                     >
-                      View All Campaigns
+                      🎾 See All Adventures
                     </Button>
                   </div>
                 </CardContent>
@@ -243,52 +243,7 @@ export default function Dashboard() {
             <NotesDocuments />
           </TabsContent>
 
-          {/* Settings Tab */}
-          <TabsContent value="settings" className="mt-6">
-            <Card className="bg-white/60 backdrop-blur-sm border-white/20">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5 text-slate-600" />
-                  Dashboard Settings
-                </CardTitle>
-                <CardDescription>Configure your dashboard preferences</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-medium text-slate-900 mb-2">Data Management</h3>
-                    <p className="text-sm text-slate-600 mb-4">Control how your data is handled</p>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between p-3 bg-white/40 rounded-lg border border-slate-200/50">
-                        <span className="text-sm">Auto-backup campaigns</span>
-                        <Badge variant="secondary" className="bg-green-100 text-green-700">Enabled</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-3 bg-white/40 rounded-lg border border-slate-200/50">
-                        <span className="text-sm">Data encryption</span>
-                        <Badge variant="secondary" className="bg-green-100 text-green-700">Active</Badge>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div>
-                    <h3 className="font-medium text-slate-900 mb-2">Account</h3>
-                    <p className="text-sm text-slate-600 mb-4">Manage your account settings</p>
-                    <div className="space-y-2">
-                      <Button variant="outline" className="w-full justify-start">
-                        Change Password
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start">
-                        Export Data
-                      </Button>
-                      <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50">
-                        Delete Account
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
     </div>
