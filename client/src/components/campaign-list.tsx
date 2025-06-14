@@ -96,6 +96,53 @@ export default function CampaignList() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      // Validate file types
+      const invalidFiles = Array.from(files).filter(file => !file.name.endsWith('.csv'));
+      if (invalidFiles.length > 0) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please select only CSV files",
+          variant: "destructive"
+        });
+        return;
+      }
+      setSelectedFiles(files);
+    }
+  };
+
+  const handleUpload = () => {
+    if (selectedFiles) {
+      uploadMutation.mutate(selectedFiles);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const csvFiles = Array.from(files).filter(file => file.name.endsWith('.csv'));
+      if (csvFiles.length === 0) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please drop only CSV files",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      const dataTransfer = new DataTransfer();
+      csvFiles.forEach(file => dataTransfer.items.add(file));
+      setSelectedFiles(dataTransfer.files);
+    }
+  };
+
 
 
   const formatDate = (dateString: string) => {
@@ -155,6 +202,83 @@ export default function CampaignList() {
             </span>
           </div>
         </div>
+
+        {/* CSV Upload Section */}
+        <Card className="mb-6 border-2 border-dashed border-blue-200 bg-blue-50/30 hover:border-blue-300 transition-colors">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                  <Upload className="text-blue-600 h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">Upload CSV Files</h3>
+                  <p className="text-sm text-gray-600">
+                    {selectedFiles ? `${selectedFiles.length} file(s) selected` : "Drop CSV files here or click to browse"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={() => document.getElementById('csvFileInput')?.click()}
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                >
+                  <CloudUpload className="mr-2 h-4 w-4" />
+                  Browse Files
+                </Button>
+                {selectedFiles && (
+                  <Button
+                    onClick={handleUpload}
+                    disabled={uploadMutation.isPending}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {uploadMutation.isPending ? "Processing..." : "Upload"}
+                  </Button>
+                )}
+              </div>
+            </div>
+            
+            {/* Drop Zone */}
+            <div 
+              className="mt-4 border-2 border-dashed border-blue-300 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 transition-colors"
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              onClick={() => document.getElementById('csvFileInput')?.click()}
+            >
+              <CloudUpload className="text-blue-400 h-8 w-8 mb-2 mx-auto" />
+              <p className="text-blue-700 font-medium">
+                {selectedFiles ? `Ready to upload ${selectedFiles.length} file(s)` : "Drag and drop CSV files here"}
+              </p>
+              <p className="text-blue-500 text-sm mt-1">
+                Supported: CSV files • Max: 10MB per file
+              </p>
+            </div>
+
+            {selectedFiles && (
+              <div className="mt-4 space-y-2">
+                <p className="font-medium text-gray-900 text-sm">Selected Files:</p>
+                <div className="space-y-1">
+                  {Array.from(selectedFiles).map((file, index) => (
+                    <div key={index} className="text-sm text-gray-600 bg-white p-2 rounded border flex justify-between items-center">
+                      <span>{file.name}</span>
+                      <span className="text-gray-400">({(file.size / 1024).toFixed(1)} KB)</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <Input 
+              type="file" 
+              id="csvFileInput" 
+              multiple 
+              accept=".csv" 
+              className="hidden" 
+              onChange={handleFileChange}
+            />
+          </CardContent>
+        </Card>
 
         {/* Campaign List */}
         <div className="space-y-1">
