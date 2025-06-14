@@ -12,7 +12,7 @@ function getKey(): Buffer {
 export function encrypt(text: string): string {
   const iv = crypto.randomBytes(16);
   const key = getKey();
-  const cipher = crypto.createCipher(ALGORITHM, key);
+  const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
   
   let encrypted = cipher.update(text, 'utf8', 'hex');
   encrypted += cipher.final('hex');
@@ -30,7 +30,7 @@ export function decrypt(encryptedData: string): string {
   const encrypted = parts[1];
   const key = getKey();
   
-  const decipher = crypto.createDecipher(ALGORITHM, key);
+  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
   
   let decrypted = decipher.update(encrypted, 'hex', 'utf8');
   decrypted += decipher.final('utf8');

@@ -42,6 +42,38 @@ const upload = multer({
 // Password for dashboard access
 const DASHBOARD_PASSWORD = process.env.DASHBOARD_PASSWORD || 'admin123';
 
+// Function to parse CSV line with proper handling of quoted fields
+function parseCSVLine(line: string): string[] {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        // Handle escaped quotes
+        current += '"';
+        i++; // Skip next quote
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // Field separator found outside quotes
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  
+  // Add the last field
+  result.push(current.trim());
+  return result;
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // Authentication route
@@ -85,8 +117,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'CSV file is empty' });
       }
 
+      // Function to parse CSV line with proper handling of quoted fields
+      function parseCSVLine(line: string): string[] {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          
+          if (char === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+              // Handle escaped quotes
+              current += '"';
+              i++; // Skip next quote
+            } else {
+              // Toggle quote state
+              inQuotes = !inQuotes;
+            }
+          } else if (char === ',' && !inQuotes) {
+            // Field separator found outside quotes
+            result.push(current.trim());
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        
+        // Add the last field
+        result.push(current.trim());
+        return result;
+      }
+
       // Parse headers
-      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+      const headers = parseCSVLine(lines[0]);
       
       // Clean up uploaded file
       fs.unlinkSync(file.path);
@@ -129,13 +193,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'CSV file is empty' });
       }
 
+      // Function to parse CSV line with proper handling of quoted fields
+      function parseCSVLine(line: string): string[] {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          
+          if (char === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+              // Handle escaped quotes
+              current += '"';
+              i++; // Skip next quote
+            } else {
+              // Toggle quote state
+              inQuotes = !inQuotes;
+            }
+          } else if (char === ',' && !inQuotes) {
+            // Field separator found outside quotes
+            result.push(current.trim());
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        
+        // Add the last field
+        result.push(current.trim());
+        return result;
+      }
+
       // Parse headers
-      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+      const headers = parseCSVLine(lines[0]);
 
       // Parse data rows and add timezone
       const dataRows = [];
       for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+        const values = parseCSVLine(lines[i]);
         const row: Record<string, string> = {};
         
         // Map original headers to values
