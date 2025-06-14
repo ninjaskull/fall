@@ -334,7 +334,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Upload documents
-  app.post('/api/documents', upload.single('document'), async (req, res) => {
+  app.post('/api/documents/upload', upload.single('document'), async (req, res) => {
     try {
       const file = req.file as Express.Multer.File;
       if (!file) {

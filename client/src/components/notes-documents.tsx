@@ -60,15 +60,21 @@ export default function NotesDocuments() {
   const uploadDocumentsMutation = useMutation({
     mutationFn: async (files: File[]) => {
       console.log('Starting upload mutation with files:', files.map(f => f.name));
-      const formData = new FormData();
-      files.forEach((file, index) => {
-        console.log(`Appending file ${index}:`, file.name, file.size, 'bytes');
-        formData.append('documents', file);
-      });
       
-      console.log('FormData created, making request...');
-      const response = await apiRequest('POST', '/api/documents/upload', formData);
-      return response.json();
+      // Upload files one by one since backend expects single file
+      const results = [];
+      for (const file of files) {
+        const formData = new FormData();
+        console.log(`Appending file:`, file.name, file.size, 'bytes');
+        formData.append('document', file);
+        
+        console.log('FormData created, making request...');
+        const response = await apiRequest('POST', '/api/documents/upload', formData);
+        const result = await response.json();
+        results.push(result);
+      }
+      
+      return { documents: results };
     },
     onSuccess: (data) => {
       toast({
