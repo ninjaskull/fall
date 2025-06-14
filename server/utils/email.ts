@@ -1,11 +1,11 @@
-import { MailService } from '@sendgrid/mail';
+import * as brevo from '@getbrevo/brevo';
 
-if (!process.env.SENDGRID_API_KEY) {
-  throw new Error("SENDGRID_API_KEY environment variable must be set");
+if (!process.env.BREVO_API_KEY) {
+  throw new Error("BREVO_API_KEY environment variable must be set");
 }
 
-const mailService = new MailService();
-mailService.setApiKey(process.env.SENDGRID_API_KEY);
+const apiInstance = new brevo.TransactionalEmailsApi();
+apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 
 interface ContactFormData {
   name: string;
@@ -15,7 +15,25 @@ interface ContactFormData {
 
 export async function sendContactFormEmail(data: ContactFormData): Promise<boolean> {
   try {
-    const emailContent = `
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+    
+    sendSmtpEmail.subject = "New Contact Form Submission";
+    sendSmtpEmail.to = [{ email: "new@fallowl.com", name: "Fallowl Team" }];
+    sendSmtpEmail.sender = { name: "NeuralTech Solutions", email: "noreply@fallowl.com" };
+    sendSmtpEmail.htmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">New Contact Form Submission</h2>
+        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p><strong>Name:</strong> ${data.name}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
+          <p><strong>Mobile:</strong> ${data.mobile}</p>
+        </div>
+        <p style="color: #666; font-size: 14px;">
+          Submitted at: ${new Date().toLocaleString()}
+        </p>
+      </div>
+    `;
+    sendSmtpEmail.textContent = `
       New Contact Form Submission
       
       Name: ${data.name}
@@ -25,30 +43,11 @@ export async function sendContactFormEmail(data: ContactFormData): Promise<boole
       Submitted at: ${new Date().toLocaleString()}
     `;
 
-    await mailService.send({
-      to: 'new@fallowl.com',
-      from: 'noreply@fallowl.com', // This should be a verified sender email
-      subject: 'New Contact Form Submission',
-      text: emailContent,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #333;">New Contact Form Submission</h2>
-          <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Name:</strong> ${data.name}</p>
-            <p><strong>Email:</strong> ${data.email}</p>
-            <p><strong>Mobile:</strong> ${data.mobile}</p>
-          </div>
-          <p style="color: #666; font-size: 14px;">
-            Submitted at: ${new Date().toLocaleString()}
-          </p>
-        </div>
-      `,
-    });
-    
-    console.log('Contact form email sent successfully');
+    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log('Contact form email sent successfully via Brevo');
     return true;
   } catch (error) {
-    console.error('Failed to send contact form email:', error);
+    console.error('Failed to send contact form email via Brevo:', error);
     return false;
   }
 }
