@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -37,16 +37,19 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
   const [autoDetectedCount, setAutoDetectedCount] = useState(0);
   const { toast } = useToast();
 
+  // Filter out empty headers
+  const validHeaders = csvHeaders.filter(header => header && header.trim() !== '');
+
   // Auto-detect field mappings
   useEffect(() => {
-    if (csvHeaders.length > 0) {
+    if (validHeaders.length > 0) {
       const autoMappings: Record<string, string> = {};
       let detectedCount = 0;
 
       STANDARD_FIELDS.forEach(standardField => {
         const normalizedStandard = standardField.toLowerCase().replace(/[^a-z0-9]/g, '');
         
-        const matchedHeader = csvHeaders.find(header => {
+        const matchedHeader = validHeaders.find(header => {
           const normalizedHeader = header.toLowerCase().replace(/[^a-z0-9]/g, '');
           
           // Direct match
@@ -68,7 +71,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
       setMappings(autoMappings);
       setAutoDetectedCount(detectedCount);
     }
-  }, [csvHeaders]);
+  }, [validHeaders]);
 
   const handleMappingChange = (standardField: string, csvHeader: string) => {
     setMappings(prev => {
@@ -114,7 +117,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
     const usedHeaders = Object.values(mappings).filter(header => 
       currentField ? mappings[currentField] !== header : true
     );
-    return csvHeaders.filter(header => !usedHeaders.includes(header));
+    return validHeaders.filter(header => !usedHeaders.includes(header));
   };
 
   return (
@@ -132,19 +135,19 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
               <X className="h-4 w-4" />
             </Button>
           </DialogTitle>
-          <p className="text-sm text-slate-600 mt-2">
+          <DialogDescription>
             Map your CSV columns to standard campaign fields. Required fields are marked with 
             <span className="text-red-500 font-medium"> *</span>.
-          </p>
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* CSV Headers Preview */}
           <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h3 className="font-medium text-blue-900 mb-2">CSV Columns Found ({csvHeaders.length})</h3>
+            <h3 className="font-medium text-blue-900 mb-2">CSV Columns Found ({validHeaders.length})</h3>
             <div className="flex flex-wrap gap-2">
-              {csvHeaders.map((header, index) => (
-                <span key={`${header}-${index}`} className="px-2 py-1 bg-white border border-blue-200 rounded text-sm text-blue-800">
+              {validHeaders.map((header, index) => (
+                <span key={`header-${index}-${header}`} className="px-2 py-1 bg-white border border-blue-200 rounded text-sm text-blue-800">
                   {header}
                 </span>
               ))}
@@ -185,10 +188,10 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
             <div className="grid gap-3">
               {REQUIRED_FIELDS.map(standardField => {
                 const currentMapping = mappings[standardField];
-                const isAutoDetected = csvHeaders.includes(currentMapping || '');
+                const isAutoDetected = validHeaders.includes(currentMapping || '');
 
                 return (
-                  <div key={standardField} className="grid grid-cols-2 gap-4 items-center p-4 border-2 border-red-100 rounded-lg hover:bg-red-50 transition-colors">
+                  <div key={`required-${standardField}`} className="grid grid-cols-2 gap-4 items-center p-4 border-2 border-red-100 rounded-lg hover:bg-red-50 transition-colors">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-slate-700">
                         {standardField}
@@ -228,11 +231,11 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                               Don't map this field
                             </span>
                           </SelectItem>
-                          {csvHeaders.map(header => {
+                          {validHeaders.map((header, index) => {
                             const isUsed = Object.values(mappings).includes(header) && mappings[standardField] !== header;
                             return (
                               <SelectItem 
-                                key={header} 
+                                key={`req-${standardField}-${header}-${index}`} 
                                 value={header}
                                 disabled={isUsed}
                                 className={isUsed ? "text-slate-400" : ""}
@@ -271,10 +274,10 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
             <div className="grid gap-3">
               {STANDARD_FIELDS.filter(field => !REQUIRED_FIELDS.includes(field)).map(standardField => {
                 const currentMapping = mappings[standardField];
-                const isAutoDetected = csvHeaders.includes(currentMapping || '');
+                const isAutoDetected = validHeaders.includes(currentMapping || '');
 
                 return (
-                  <div key={standardField} className="grid grid-cols-2 gap-4 items-center p-4 border rounded-lg hover:bg-slate-50 transition-colors">
+                  <div key={`optional-${standardField}`} className="grid grid-cols-2 gap-4 items-center p-4 border rounded-lg hover:bg-slate-50 transition-colors">
                     <div className="flex items-center gap-2">
                       <span className="font-medium text-slate-700">
                         {standardField}
@@ -310,11 +313,11 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                               Don't map this field
                             </span>
                           </SelectItem>
-                          {csvHeaders.map(header => {
+                          {validHeaders.map((header, index) => {
                             const isUsed = Object.values(mappings).includes(header) && mappings[standardField] !== header;
                             return (
                               <SelectItem 
-                                key={header} 
+                                key={`opt-${standardField}-${header}-${index}`} 
                                 value={header}
                                 disabled={isUsed}
                                 className={isUsed ? "text-slate-400" : ""}
@@ -368,8 +371,9 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
             <Button 
               onClick={handleSave}
               disabled={getRequiredMissingFields().length > 0}
+              className="bg-blue-600 hover:bg-blue-700"
             >
-              Save Campaign
+              Save Mappings ({getMappedCount()} fields)
             </Button>
           </div>
         </div>
