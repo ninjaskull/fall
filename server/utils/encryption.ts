@@ -30,10 +30,21 @@ export function decrypt(encryptedData: string): string {
   const encrypted = parts[1];
   const key = getKey();
   
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-  
-  let decrypted = decipher.update(encrypted, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  
-  return decrypted;
+  try {
+    // Try new encryption method first
+    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
+    let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch (error) {
+    // If new method fails, try legacy method
+    try {
+      const decipher = crypto.createDecipher(ALGORITHM, key);
+      let decrypted = decipher.update(encrypted, 'hex', 'utf8');
+      decrypted += decipher.final('utf8');
+      return decrypted;
+    } catch (legacyError) {
+      throw new Error('Unable to decrypt data with either method');
+    }
+  }
 }
