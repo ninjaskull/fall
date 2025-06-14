@@ -6,6 +6,7 @@ import path from 'path';
 import { storage } from "./storage.js";
 import { encrypt, decrypt } from "./utils/encryption.js";
 import { deriveTimezone } from "./utils/timezone.js";
+import { sendContactFormEmail } from "./utils/email.js";
 
 // Configure multer for file uploads
 const upload = multer({ 
