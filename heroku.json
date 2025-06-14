@@ -1,0 +1,44 @@
+{
+  "name": "Campaign Management App",
+  "description": "A secure full-stack web application for intelligent campaign data management",
+  "repository": "https://github.com/your-username/campaign-management-app",
+  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "keywords": ["node", "express", "react", "postgresql", "campaign-management"],
+  "image": "heroku/nodejs",
+  "addons": [
+    {
+      "plan": "heroku-postgresql:mini"
+    }
+  ],
+  "env": {
+    "NODE_ENV": {
+      "description": "Node environment",
+      "value": "production"
+    },
+    "DASHBOARD_PASSWORD": {
+      "description": "Password for dashboard access",
+      "generator": "secret"
+    },
+    "ENCRYPTION_KEY": {
+      "description": "32-character key for data encryption",
+      "generator": "secret"
+    },
+    "BREVO_API_KEY": {
+      "description": "Optional: Brevo API key for email functionality",
+      "required": false
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "npm run db:push"
+  }
+}
