@@ -84,6 +84,16 @@ function parseCSVLine(line: string): string[] {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
+  // Health check endpoint
+  app.get('/api/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      version: '1.0.0'
+    });
+  });
+  
   // Authentication route
   app.post('/api/auth', async (req, res) => {
     try {
