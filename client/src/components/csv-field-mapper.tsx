@@ -210,7 +210,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                         onValueChange={(value) => handleMappingChange(standardField, value)}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder={`Map to CSV column...`}>
+                          <SelectValue placeholder="Select CSV column...">
                             {currentMapping ? (
                               <span className="flex items-center gap-2">
                                 <span className="text-blue-600">→</span>
@@ -292,7 +292,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                         onValueChange={(value) => handleMappingChange(standardField, value)}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder={`Map to CSV column...`}>
+                          <SelectValue placeholder="Select CSV column...">
                             {currentMapping ? (
                               <span className="flex items-center gap-2">
                                 <span className="text-blue-600">→</span>

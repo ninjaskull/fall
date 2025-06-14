@@ -113,6 +113,12 @@ Changelog:
   - Fixed API endpoint mismatch between frontend and backend for document uploads
   - Updated file filter to accept CSV, Excel, and text files in document uploads
   - Resolved data structure mismatch in document display interface
+  - Enhanced CSV field mapping interface with improved user experience:
+    * Added CSV columns preview section showing all detected headers
+    * Separated required and optional fields for better organization
+    * Improved visual feedback with color-coded status indicators
+    * Added better field mapping validation and user guidance
+    * Fixed display issues in dropdown selections
   - Application now fully functional with working CSV campaign uploads and document management
 
 ## User Preferences
