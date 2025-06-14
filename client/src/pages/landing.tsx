@@ -115,9 +115,7 @@ export default function Landing() {
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
                 <Brain className="text-white text-lg" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                fallowl
-              </span>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">FallOwl</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <button className="text-slate-300 hover:text-white transition-colors duration-300">
@@ -323,7 +321,6 @@ export default function Landing() {
           </div>
         </div>
       </footer>
-      
       {/* Chatbot Component */}
       <Chatbot 
         isOpen={showChatbot} 
