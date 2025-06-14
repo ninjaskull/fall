@@ -421,17 +421,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'All fields are required' });
       }
       
-      // Send email
+      // Store contact in database first
+      const contact = await storage.createContact({
+        name,
+        email,
+        mobile,
+        emailSent: false
+      });
+      
+      // Attempt to send email
       const emailSent = await sendContactFormEmail({ name, email, mobile });
       
+      // Update email status in database
       if (emailSent) {
-        res.json({ success: true, message: 'Thank you for your interest! We will get back to you soon.' });
-      } else {
-        res.status(500).json({ message: 'Failed to submit contact form. Please try again.' });
+        await storage.updateContactEmailStatus(contact.id, true);
       }
+      
+      // Always return success to user since we stored their information
+      res.json({ 
+        success: true, 
+        message: 'Thank you for your interest! We have received your information and will get back to you soon.' 
+      });
+      
     } catch (error) {
       console.error('Contact form error:', error);
-      res.status(500).json({ message: 'Failed to submit contact form' });
+      res.status(500).json({ message: 'Failed to submit contact form. Please try again.' });
     }
   });
 

@@ -3,6 +3,7 @@ import {
   campaigns, 
   notes, 
   documents,
+  contacts,
   type User, 
   type InsertUser,
   type Campaign,
@@ -10,7 +11,9 @@ import {
   type Note,
   type InsertNote,
   type Document,
-  type InsertDocument
+  type InsertDocument,
+  type Contact,
+  type InsertContact
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -31,6 +34,10 @@ export interface IStorage {
   createDocument(document: InsertDocument): Promise<Document>;
   getDocuments(): Promise<Document[]>;
   getDocument(id: number): Promise<Document | undefined>;
+  
+  createContact(contact: InsertContact): Promise<Contact>;
+  getContacts(): Promise<Contact[]>;
+  updateContactEmailStatus(id: number, emailSent: boolean): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -100,6 +107,19 @@ export class DatabaseStorage implements IStorage {
   async getDocument(id: number): Promise<Document | undefined> {
     const [document] = await db.select().from(documents).where(eq(documents.id, id));
     return document || undefined;
+  }
+
+  async createContact(insertContact: InsertContact): Promise<Contact> {
+    const [contact] = await db.insert(contacts).values(insertContact).returning();
+    return contact;
+  }
+
+  async getContacts(): Promise<Contact[]> {
+    return await db.select().from(contacts);
+  }
+
+  async updateContactEmailStatus(id: number, emailSent: boolean): Promise<void> {
+    await db.update(contacts).set({ emailSent }).where(eq(contacts.id, id));
   }
 }
 

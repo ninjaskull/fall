@@ -46,8 +46,13 @@ export async function sendContactFormEmail(data: ContactFormData): Promise<boole
     await apiInstance.sendTransacEmail(sendSmtpEmail);
     console.log('Contact form email sent successfully via Brevo');
     return true;
-  } catch (error) {
-    console.error('Failed to send contact form email via Brevo:', error);
+  } catch (error: any) {
+    if (error?.body?.message?.includes('unrecognised IP address')) {
+      console.log('IP Authorization needed for Brevo. Please add IP to authorized list in Brevo dashboard.');
+      console.log('Visit: https://app.brevo.com/security/authorised_ips');
+    } else {
+      console.error('Failed to send contact form email via Brevo:', error);
+    }
     return false;
   }
 }
