@@ -222,14 +222,14 @@ export default function NotesDocuments() {
                       <div className="flex items-center space-x-2 min-w-0">
                         <FileText className="h-4 w-4 text-slate-500 flex-shrink-0" />
                         <div className="min-w-0">
-                          <p className="font-medium text-slate-900 truncate">{message.originalName}</p>
-                          <p className="text-sm text-slate-500">{formatFileSize(message.fileSize)}</p>
+                          <p className="font-medium text-slate-900 truncate">{message.name || message.originalName}</p>
+                          <p className="text-sm text-slate-500">{formatFileSize(message.size || message.fileSize)}</p>
                         </div>
                       </div>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDownload(message.id, message.originalName)}
+                        onClick={() => handleDownload(message.id, message.name || message.originalName)}
                         className="flex-shrink-0"
                       >
                         <Download className="h-4 w-4" />

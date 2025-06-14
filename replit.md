@@ -108,6 +108,12 @@ This is a full-stack web application designed as a campaign data management syst
 
 Changelog:
 - June 13, 2025. Initial setup
+- June 14, 2025. Fixed database connection issues and document upload functionality:
+  - Created PostgreSQL database to resolve DATABASE_URL errors
+  - Fixed API endpoint mismatch between frontend and backend for document uploads
+  - Updated file filter to accept CSV, Excel, and text files in document uploads
+  - Resolved data structure mismatch in document display interface
+  - Application now fully functional with working CSV campaign uploads and document management
 
 ## User Preferences
 
