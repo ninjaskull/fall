@@ -150,16 +150,16 @@ Changelog:
   - Direct dashboard URLs automatically redirect to landing page
   - Browser refresh clears authentication state, requiring re-authentication
   - Added ProtectedRoute component to guard all dashboard and campaign routes
-- June 14, 2025. Made application extremely easy to deploy anywhere:
-  - Added comprehensive Docker support with multi-stage builds and health checks
-  - Created platform-specific deployment configurations (Railway, Heroku, Render, Vercel, Fly.io)
-  - Built universal installation scripts for Linux/macOS (install.sh) and Windows (install.bat)
-  - Added automated deployment scripts (deploy.sh, deploy.bat) with database setup
-  - Implemented health check endpoint (/api/health) for monitoring and deployment verification
-  - Made email service (Brevo) optional to prevent deployment failures
-  - Created comprehensive deployment documentation with one-click deployment options
-  - Added environment variable templates (.env.example) with secure defaults
-  - Optimized for cloud platforms with automatic database migrations and configuration
+- June 14, 2025. Streamlined deployment with single AWS EC2 script:
+  - Removed all platform-specific deployment files and Docker configurations
+  - Created comprehensive one-click AWS EC2 deployment script (deploy-aws-ec2.sh)
+  - Script handles complete infrastructure setup: VPC, subnets, security groups, RDS, EC2
+  - Automated application deployment with Node.js, Nginx, PM2, and database migrations
+  - Interactive credential collection for AWS, database, and email service configuration
+  - Built-in health monitoring and automatic service recovery
+  - Comprehensive deployment guide (AWS-DEPLOYMENT-GUIDE.md) with cost estimates and troubleshooting
+  - Production environment template (.env.production.example) for configuration reference
+  - Estimated monthly cost: $37-55 for complete infrastructure
 
 ## User Preferences
 
