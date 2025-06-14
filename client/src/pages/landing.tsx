@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Brain, Cpu, Database, Globe, Network, Zap, ArrowRight, CheckCircle, Star, Users, Award, Layers, Shield, Code, Rocket } from "lucide-react";
+import { Brain, Cpu, Database, Globe, Network, Zap, ArrowRight, CheckCircle, Star, Users, Award, Layers, Shield, Rocket } from "lucide-react";
 import { setAuthenticated } from "@/lib/auth";
 import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
@@ -18,13 +18,10 @@ export default function Landing() {
 
   const authMutation = useMutation({
     mutationFn: async (password: string) => {
-      return apiRequest("/api/auth", {
-        method: "POST",
-        body: JSON.stringify({ password }),
-        headers: { "Content-Type": "application/json" },
-      });
+      const response = await apiRequest("POST", "/api/auth", { password });
+      return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       setAuthenticated(true);
       localStorage.setItem("auth_token", data.token);
       toast({ title: "Access granted", description: "Welcome to the dashboard!" });
