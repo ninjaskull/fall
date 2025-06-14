@@ -69,101 +69,125 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // CSV preview endpoint for field mapping
+  app.post('/api/campaigns/preview', upload.single('csv'), async (req, res) => {
+    try {
+      const file = req.file as Express.Multer.File;
+      if (!file) {
+        return res.status(400).json({ message: 'No CSV file uploaded' });
+      }
+
+      // Read and parse CSV headers only
+      const csvContent = fs.readFileSync(file.path, 'utf-8');
+      const lines = csvContent.split('\n').filter(line => line.trim());
+      
+      if (lines.length === 0) {
+        return res.status(400).json({ message: 'CSV file is empty' });
+      }
+
+      // Parse headers
+      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+      
+      // Clean up uploaded file
+      fs.unlinkSync(file.path);
+
+      res.json({ 
+        headers,
+        fileName: file.originalname
+      });
+    } catch (error) {
+      console.error('CSV preview error:', error);
+      res.status(500).json({ message: 'Failed to preview CSV file' });
+    }
+  });
+
   // Campaign CSV upload
-  app.post('/api/campaigns/upload', upload.array('csv'), async (req, res) => {
+  app.post('/api/campaigns/upload', upload.single('csv'), async (req, res) => {
     try {
       console.log('CSV upload request received');
       console.log('Request body:', req.body);
-      console.log('Request files:', req.files);
-      console.log('Content-Type:', req.headers['content-type']);
+      console.log('Request file:', req.file);
       
-      const files = req.files as Express.Multer.File[];
-      if (!files || files.length === 0) {
-        console.log('No CSV files found in request');
-        return res.status(400).json({ message: 'No CSV files uploaded' });
+      const file = req.file as Express.Multer.File;
+      if (!file) {
+        return res.status(400).json({ message: 'No CSV file uploaded' });
       }
 
-      const results = [];
+      // Get field mappings from request
+      const fieldMappingsJson = req.body.fieldMappings;
+      if (!fieldMappingsJson) {
+        return res.status(400).json({ message: 'Field mappings are required' });
+      }
 
-      for (const file of files) {
-        // Read and parse CSV
-        const csvContent = fs.readFileSync(file.path, 'utf-8');
-        const lines = csvContent.split('\n').filter(line => line.trim());
+      const fieldMappings: Record<string, string> = JSON.parse(fieldMappingsJson);
+
+      // Read and parse CSV
+      const csvContent = fs.readFileSync(file.path, 'utf-8');
+      const lines = csvContent.split('\n').filter(line => line.trim());
+      
+      if (lines.length === 0) {
+        return res.status(400).json({ message: 'CSV file is empty' });
+      }
+
+      // Parse headers
+      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+
+      // Parse data rows and add timezone
+      const dataRows = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+        const row: Record<string, string> = {};
         
-        if (lines.length === 0) {
-          continue;
-        }
-
-        // Parse headers
-        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-        
-        // Define expected headers
-        const expectedHeaders = [
-          'First Name', 'Last Name', 'Title', 'Company', 'Email', 
-          'Mobile Phone', 'Other Phone', 'Corporate Phone',
-          'Person Linkedin Url', 'Company Linkedin Url', 'Website', 
-          'State', 'Country'
-        ];
-
-        // Auto-detect field mappings
-        const fieldMappings: Record<string, string> = {};
-        expectedHeaders.forEach(expected => {
-          const found = headers.find(header => 
-            header.toLowerCase().includes(expected.toLowerCase()) ||
-            expected.toLowerCase().includes(header.toLowerCase())
-          );
-          if (found) {
-            fieldMappings[expected] = found;
-          }
+        // Map original headers to values
+        headers.forEach((header, index) => {
+          row[header] = values[index] || '';
         });
 
-        // Parse data rows and add timezone
-        const dataRows = [];
-        for (let i = 1; i < lines.length; i++) {
-          const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-          const row: Record<string, string> = {};
-          
-          headers.forEach((header, index) => {
-            row[header] = values[index] || '';
-          });
-
-          // Derive timezone
-          const state = row[fieldMappings['State']] || '';
-          const country = row[fieldMappings['Country']] || '';
-          row['Time zone'] = deriveTimezone(state, country);
-
-          dataRows.push(row);
-        }
-
-        // Encrypt the campaign data
-        const campaignData = {
-          headers: [...headers, 'Time zone'],
-          rows: dataRows,
-          fieldMappings: { ...fieldMappings, 'Time zone': 'Time zone' }
-        };
-
-        const encryptedData = encrypt(JSON.stringify(campaignData));
-
-        // Save to database
-        const campaign = await storage.createCampaign({
-          name: file.originalname.replace('.csv', ''),
-          encryptedData,
-          fieldMappings: campaignData.fieldMappings,
-          recordCount: dataRows.length
+        // Create mapped row with standard field names
+        const mappedRow: Record<string, string> = {};
+        Object.entries(fieldMappings).forEach(([standardField, csvHeader]) => {
+          mappedRow[standardField] = row[csvHeader] || '';
         });
 
-        results.push({
+        // Derive timezone based on mapped State and Country fields
+        const state = mappedRow['State'] || '';
+        const country = mappedRow['Country'] || '';
+        mappedRow['Time Zone'] = deriveTimezone(state, country);
+
+        dataRows.push(mappedRow);
+      }
+
+      // Create final headers array with mapped fields plus timezone
+      const finalHeaders = [...Object.keys(fieldMappings), 'Time Zone'];
+
+      // Encrypt the campaign data
+      const campaignData = {
+        headers: finalHeaders,
+        rows: dataRows,
+        fieldMappings: { ...fieldMappings, 'Time Zone': 'Time Zone' }
+      };
+
+      const encryptedData = encrypt(JSON.stringify(campaignData));
+
+      // Save to database
+      const campaign = await storage.createCampaign({
+        name: file.originalname.replace('.csv', ''),
+        encryptedData,
+        fieldMappings: campaignData.fieldMappings,
+        recordCount: dataRows.length
+      });
+
+      // Clean up uploaded file
+      fs.unlinkSync(file.path);
+
+      res.json({ 
+        campaign: {
           id: campaign.id,
           name: campaign.name,
           recordCount: campaign.recordCount,
           fieldMappings: campaign.fieldMappings
-        });
-
-        // Clean up uploaded file
-        fs.unlinkSync(file.path);
-      }
-
-      res.json({ campaigns: results });
+        }
+      });
     } catch (error) {
       console.error('Campaign upload error:', error);
       res.status(500).json({ message: 'Failed to process campaign upload' });

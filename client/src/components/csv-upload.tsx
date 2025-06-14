@@ -7,18 +7,44 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import CampaignTable from "./campaign-table";
+import CsvFieldMapper from "./csv-field-mapper";
 
 export default function CsvUpload() {
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [showFieldMapper, setShowFieldMapper] = useState(false);
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [currentFileName, setCurrentFileName] = useState("");
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const uploadMutation = useMutation({
-    mutationFn: async (files: FileList) => {
+  const previewMutation = useMutation({
+    mutationFn: async (file: File) => {
       const formData = new FormData();
-      Array.from(files).forEach(file => {
-        formData.append('csv', file);
+      formData.append('csv', file);
+      
+      const response = await apiRequest('POST', '/api/campaigns/preview', formData);
+      return response.json();
+    },
+    onSuccess: (data) => {
+      setCsvHeaders(data.headers);
+      setCurrentFileName(data.fileName);
+      setShowFieldMapper(true);
+    },
+    onError: (error) => {
+      toast({
+        title: "Preview Failed",
+        description: error.message || "Failed to preview CSV file",
+        variant: "destructive"
       });
+    }
+  });
+
+  const uploadMutation = useMutation({
+    mutationFn: async ({ file, mappings }: { file: File, mappings: Record<string, string> }) => {
+      const formData = new FormData();
+      formData.append('csv', file);
+      formData.append('fieldMappings', JSON.stringify(mappings));
       
       const response = await apiRequest('POST', '/api/campaigns/upload', formData);
       return response.json();
@@ -26,9 +52,11 @@ export default function CsvUpload() {
     onSuccess: (data) => {
       toast({
         title: "Upload Successful",
-        description: `${data.campaigns.length} campaign(s) processed successfully`,
+        description: `Campaign "${data.campaign.name}" processed successfully with ${data.campaign.recordCount} records`,
       });
       setSelectedFiles(null);
+      setPendingFile(null);
+      setShowFieldMapper(false);
       queryClient.invalidateQueries({ queryKey: ['/api/campaigns'] });
     },
     onError: (error) => {
@@ -40,7 +68,7 @@ export default function CsvUpload() {
     }
   });
 
-  const { data: campaigns, isLoading } = useQuery({
+  const { data: campaigns, isLoading } = useQuery<any[]>({
     queryKey: ['/api/campaigns'],
   });
 
@@ -62,9 +90,24 @@ export default function CsvUpload() {
   };
 
   const handleUpload = () => {
-    if (selectedFiles) {
-      uploadMutation.mutate(selectedFiles);
+    if (selectedFiles && selectedFiles[0]) {
+      const file = selectedFiles[0];
+      setPendingFile(file);
+      previewMutation.mutate(file);
     }
+  };
+
+  const handleFieldMappingSave = (mappings: Record<string, string>) => {
+    if (pendingFile) {
+      uploadMutation.mutate({ file: pendingFile, mappings });
+    }
+  };
+
+  const handleFieldMapperClose = () => {
+    setShowFieldMapper(false);
+    setPendingFile(null);
+    setCsvHeaders([]);
+    setCurrentFileName("");
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -146,16 +189,27 @@ export default function CsvUpload() {
           
           <Button 
             onClick={handleUpload}
-            disabled={!selectedFiles || uploadMutation.isPending}
+            disabled={!selectedFiles || previewMutation.isPending}
             className="w-full"
           >
-            {uploadMutation.isPending ? "Processing..." : "Process Upload"}
+            {previewMutation.isPending ? "Analyzing..." : "Upload & Map Fields"}
           </Button>
         </CardContent>
       </Card>
 
+      {/* Field Mapper Modal */}
+      {showFieldMapper && (
+        <CsvFieldMapper
+          isOpen={showFieldMapper}
+          onClose={handleFieldMapperClose}
+          onSave={handleFieldMappingSave}
+          csvHeaders={csvHeaders}
+          fileName={currentFileName}
+        />
+      )}
+
       {/* Campaign List */}
-      {campaigns && campaigns.length > 0 && (
+      {campaigns && Array.isArray(campaigns) && campaigns.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Uploaded Campaigns</CardTitle>
