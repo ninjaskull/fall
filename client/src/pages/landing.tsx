@@ -8,11 +8,13 @@ import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import Chatbot from "@/components/chatbot";
 
 export default function Landing() {
   const [clickCount, setClickCount] = useState(0);
   const [showAdminAccess, setShowAdminAccess] = useState(false);
   const [password, setPassword] = useState("");
+  const [showChatbot, setShowChatbot] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -127,7 +129,10 @@ export default function Landing() {
               <button className="text-slate-300 hover:text-white transition-colors duration-300">
                 Research
               </button>
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-0 shadow-lg shadow-blue-500/25">
+              <Button 
+                onClick={() => setShowChatbot(true)}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-0 shadow-lg shadow-blue-500/25"
+              >
                 Get Started
               </Button>
             </div>
@@ -159,6 +164,7 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Button 
                 size="lg" 
+                onClick={() => setShowChatbot(true)}
                 className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-0 shadow-2xl shadow-blue-500/25 text-lg group"
               >
                 Start Your Journey
@@ -232,6 +238,7 @@ export default function Landing() {
             </p>
             <Button 
               size="lg" 
+              onClick={() => setShowChatbot(true)}
               className="px-12 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-0 shadow-2xl shadow-blue-500/25 text-lg"
             >
               Get Started Today
@@ -316,6 +323,12 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+      
+      {/* Chatbot Component */}
+      <Chatbot 
+        isOpen={showChatbot} 
+        onClose={() => setShowChatbot(false)} 
+      />
     </div>
   );
 }

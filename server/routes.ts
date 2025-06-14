@@ -411,6 +411,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Contact form submission
+  app.post('/api/contact', async (req, res) => {
+    try {
+      const { name, email, mobile } = req.body;
+      
+      // Validate required fields
+      if (!name || !email || !mobile) {
+        return res.status(400).json({ message: 'All fields are required' });
+      }
+      
+      // Send email
+      const emailSent = await sendContactFormEmail({ name, email, mobile });
+      
+      if (emailSent) {
+        res.json({ success: true, message: 'Thank you for your interest! We will get back to you soon.' });
+      } else {
+        res.status(500).json({ message: 'Failed to submit contact form. Please try again.' });
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      res.status(500).json({ message: 'Failed to submit contact form' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
