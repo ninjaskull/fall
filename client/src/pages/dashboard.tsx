@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { 
-  Database, 
+  Heart, 
   LogOut, 
   FolderOpen, 
   MessageSquare, 
@@ -15,7 +15,7 @@ import {
   Activity,
   TrendingUp,
   FileText,
-  Settings
+  PawPrint
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -59,26 +59,29 @@ export default function Dashboard() {
   const recentCampaigns = campaigns.slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* Modern Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200/50 px-6 py-4 sticky top-0 z-50">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-orange-50 to-yellow-50">
+      {/* Cute Header */}
+      <header className="bg-white/90 backdrop-blur-sm border-b border-pink-200/50 px-6 py-4 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Database className="text-white h-5 w-5" />
+            <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-orange-400 rounded-full flex items-center justify-center shadow-lg">
+              <PawPrint className="text-white h-6 w-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Campaign Manager</h1>
-              <p className="text-sm text-slate-600">Manage your data campaigns efficiently</p>
+              <h1 className="text-2xl font-bold text-pink-800 flex items-center gap-2">
+                🐕 Pawsome Campaign Hub 
+                <Heart className="h-5 w-5 text-pink-500 fill-pink-500" />
+              </h1>
+              <p className="text-sm text-pink-600">Your furry friend data manager! 🦴</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-              {totalCampaigns} Campaigns
+            <Badge variant="secondary" className="bg-pink-100 text-pink-700 border-pink-200">
+              🎾 {totalCampaigns} Campaigns
             </Badge>
-            <Button variant="ghost" onClick={handleLogout} className="text-slate-600 hover:text-slate-900">
+            <Button variant="ghost" onClick={handleLogout} className="text-pink-600 hover:text-pink-800 hover:bg-pink-50">
               <LogOut className="mr-2 h-4 w-4" />
-              Logout
+              Walkies (Logout)
             </Button>
           </div>
         </div>
@@ -87,22 +90,18 @@ export default function Dashboard() {
       {/* Navigation Tabs */}
       <div className="max-w-7xl mx-auto px-6 pt-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:w-fit lg:grid-cols-4 bg-white/60 backdrop-blur-sm">
-            <TabsTrigger value="overview" className="flex items-center gap-2">
+          <TabsList className="grid w-full grid-cols-3 lg:w-fit lg:grid-cols-3 bg-white/70 backdrop-blur-sm border-pink-200">
+            <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:bg-pink-100 data-[state=active]:text-pink-800">
               <BarChart3 className="h-4 w-4" />
-              <span className="hidden sm:inline">Overview</span>
+              <span className="hidden sm:inline">🏠 Home</span>
             </TabsTrigger>
-            <TabsTrigger value="files" className="flex items-center gap-2">
+            <TabsTrigger value="files" className="flex items-center gap-2 data-[state=active]:bg-pink-100 data-[state=active]:text-pink-800">
               <FolderOpen className="h-4 w-4" />
-              <span className="hidden sm:inline">Files</span>
+              <span className="hidden sm:inline">📁 Treats (Files)</span>
             </TabsTrigger>
-            <TabsTrigger value="notes" className="flex items-center gap-2">
+            <TabsTrigger value="notes" className="flex items-center gap-2 data-[state=active]:bg-pink-100 data-[state=active]:text-pink-800">
               <MessageSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Notes</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Settings</span>
+              <span className="hidden sm:inline">📝 Diary</span>
             </TabsTrigger>
           </TabsList>
 
@@ -110,48 +109,48 @@ export default function Dashboard() {
           <TabsContent value="overview" className="mt-6 space-y-6">
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-lg transition-shadow">
+              <Card className="bg-white/70 backdrop-blur-sm border-pink-200/50 hover:shadow-lg transition-shadow">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">Total Campaigns</CardTitle>
-                  <Database className="h-4 w-4 text-blue-600" />
+                  <CardTitle className="text-sm font-medium text-pink-700">🐕 Total Campaigns</CardTitle>
+                  <PawPrint className="h-4 w-4 text-pink-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">{totalCampaigns}</div>
-                  <p className="text-xs text-slate-500">Active data campaigns</p>
+                  <div className="text-2xl font-bold text-pink-900">{totalCampaigns}</div>
+                  <p className="text-xs text-pink-600">Good pups managed!</p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/60 backdrop-blur-sm border-white/20 hover:shadow-lg transition-shadow">
+              <Card className="bg-white/70 backdrop-blur-sm border-orange-200/50 hover:shadow-lg transition-shadow">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-slate-600">Total Records</CardTitle>
-                  <Users className="h-4 w-4 text-green-600" />
+                  <CardTitle className="text-sm font-medium text-orange-700">🦴 Total Records</CardTitle>
+                  <Users className="h-4 w-4 text-orange-600" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold text-slate-900">{totalRecords.toLocaleString()}</div>
-                  <p className="text-xs text-slate-500">Data points processed</p>
+                  <div className="text-2xl font-bold text-orange-900">{totalRecords.toLocaleString()}</div>
+                  <p className="text-xs text-orange-600">Treats collected!</p>
                 </CardContent>
               </Card>
             </div>
 
             {/* Quick Actions */}
-            <Card className="bg-white/60 backdrop-blur-sm border-white/20">
+            <Card className="bg-white/70 backdrop-blur-sm border-pink-200/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Upload className="h-5 w-5 text-blue-600" />
-                  Quick Actions
+                  <Upload className="h-5 w-5 text-pink-600" />
+                  🎾 Quick Fetch Commands
                 </CardTitle>
-                <CardDescription>Get started with common tasks</CardDescription>
+                <CardDescription>What would you like to do today, good pup?</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Button 
                   onClick={() => setActiveTab("files")}
-                  className="h-auto p-4 bg-blue-600 hover:bg-blue-700 text-left justify-start"
+                  className="h-auto p-4 bg-pink-500 hover:bg-pink-600 text-left justify-start"
                 >
                   <div className="flex items-center gap-3">
                     <Upload className="h-5 w-5" />
                     <div>
-                      <div className="font-medium">Upload CSV</div>
-                      <div className="text-xs opacity-90">Import new campaign data</div>
+                      <div className="font-medium">🍖 Upload Treats (CSV)</div>
+                      <div className="text-xs opacity-90">Bring in fresh campaign data!</div>
                     </div>
                   </div>
                 </Button>
@@ -159,13 +158,13 @@ export default function Dashboard() {
                 <Button 
                   onClick={() => setActiveTab("files")}
                   variant="outline"
-                  className="h-auto p-4 text-left justify-start border-slate-200 hover:bg-slate-50"
+                  className="h-auto p-4 text-left justify-start border-pink-200 hover:bg-pink-50"
                 >
                   <div className="flex items-center gap-3">
-                    <FolderOpen className="h-5 w-5 text-slate-600" />
+                    <FolderOpen className="h-5 w-5 text-pink-600" />
                     <div>
-                      <div className="font-medium">View Campaigns</div>
-                      <div className="text-xs text-slate-500">Browse existing data</div>
+                      <div className="font-medium">🎾 Fetch Campaigns</div>
+                      <div className="text-xs text-pink-600">Browse your pup data</div>
                     </div>
                   </div>
                 </Button>
@@ -173,13 +172,13 @@ export default function Dashboard() {
                 <Button 
                   onClick={() => setActiveTab("notes")}
                   variant="outline"
-                  className="h-auto p-4 text-left justify-start border-slate-200 hover:bg-slate-50"
+                  className="h-auto p-4 text-left justify-start border-orange-200 hover:bg-orange-50"
                 >
                   <div className="flex items-center gap-3">
-                    <MessageSquare className="h-5 w-5 text-slate-600" />
+                    <MessageSquare className="h-5 w-5 text-orange-600" />
                     <div>
-                      <div className="font-medium">Add Notes</div>
-                      <div className="text-xs text-slate-500">Document your work</div>
+                      <div className="font-medium">📖 Pup Diary</div>
+                      <div className="text-xs text-orange-600">Write down memories</div>
                     </div>
                   </div>
                 </Button>
