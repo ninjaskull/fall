@@ -1,20 +1,18 @@
+// Session-based authentication - only valid for current session
+let isSessionAuthenticated = false;
+
 export function isAuthenticated(): boolean {
-  const token = localStorage.getItem('dashboard_token');
-  if (!token) return false;
-  
-  try {
-    // Simple token validation - in production you'd validate JWT properly
-    const decoded = atob(token);
-    return decoded.includes('authenticated:');
-  } catch {
-    return false;
-  }
+  return isSessionAuthenticated;
+}
+
+export function setAuthenticated(authenticated: boolean): void {
+  isSessionAuthenticated = authenticated;
 }
 
 export function getAuthToken(): string | null {
-  return localStorage.getItem('dashboard_token');
+  return isSessionAuthenticated ? 'session_authenticated' : null;
 }
 
 export function clearAuth(): void {
-  localStorage.removeItem('dashboard_token');
+  isSessionAuthenticated = false;
 }

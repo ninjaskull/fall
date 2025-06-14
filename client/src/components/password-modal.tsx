@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Lock, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { setAuthenticated } from "@/lib/auth";
 
 interface PasswordModalProps {
   isOpen: boolean;
@@ -38,8 +39,8 @@ export default function PasswordModal({ isOpen, onClose }: PasswordModalProps) {
       const data = await response.json();
 
       if (data.success) {
-        // Store auth token
-        localStorage.setItem('dashboard_token', data.token);
+        // Set session-based authentication
+        setAuthenticated(true);
         
         toast({
           title: "Success",

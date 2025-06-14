@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { clearAuth } from "@/lib/auth";
 import NotesDocuments from "@/components/notes-documents";
 import CampaignList from "@/components/campaign-list";
 
@@ -31,20 +32,8 @@ export default function Dashboard() {
     queryKey: ['/api/campaigns'],
   });
 
-  useEffect(() => {
-    const token = localStorage.getItem('dashboard_token');
-    if (!token) {
-      toast({
-        title: "Access Denied",
-        description: "Please authenticate to access the dashboard",
-        variant: "destructive"
-      });
-      setLocation("/");
-    }
-  }, [setLocation, toast]);
-
   const handleLogout = () => {
-    localStorage.removeItem('dashboard_token');
+    clearAuth();
     toast({
       title: "Logged Out",
       description: "You have been successfully logged out",
