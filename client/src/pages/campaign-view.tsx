@@ -42,10 +42,12 @@ export default function CampaignView() {
 
   const campaignId = params?.id;
 
-  const { data: campaignData, isLoading } = useQuery({
-    queryKey: ['/api/campaigns', campaignId],
+  const { data: campaignData, isLoading, error } = useQuery({
+    queryKey: [`/api/campaigns/${campaignId}`],
     enabled: !!campaignId,
   });
+
+
 
   useEffect(() => {
     if (!campaignId) {
