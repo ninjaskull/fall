@@ -28,10 +28,14 @@ const upload = multer({
         'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         'image/jpeg',
         'image/png',
-        'image/gif'
+        'image/gif',
+        'text/csv',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'text/plain'
       ];
       
-      if (allowedTypes.includes(file.mimetype)) {
+      if (allowedTypes.includes(file.mimetype) || file.originalname.endsWith('.csv') || file.originalname.endsWith('.txt')) {
         cb(null, true);
       } else {
         cb(new Error('File type not allowed'));
