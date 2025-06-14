@@ -1,221 +1,224 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Code, Smartphone, Shield, TrendingUp, Settings, Rocket } from "lucide-react";
-import PasswordModal from "@/components/password-modal";
+import { Input } from "@/components/ui/input";
+import { Brain, Cpu, Database, Globe, Network, Zap, ArrowRight, CheckCircle, Star, Users, Award, Layers, Shield, Code, Rocket } from "lucide-react";
+import { setAuthenticated } from "@/lib/auth";
+import { useLocation } from "wouter";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Landing() {
   const [clickCount, setClickCount] = useState(0);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showAdminAccess, setShowAdminAccess] = useState(false);
+  const [password, setPassword] = useState("");
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+
+  const authMutation = useMutation({
+    mutationFn: async (password: string) => {
+      return apiRequest("/api/auth", {
+        method: "POST",
+        body: JSON.stringify({ password }),
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+    onSuccess: (data) => {
+      setAuthenticated(true);
+      localStorage.setItem("auth_token", data.token);
+      toast({ title: "Access granted", description: "Welcome to the dashboard!" });
+      setLocation("/dashboard");
+    },
+    onError: () => {
+      toast({ title: "Access denied", description: "Invalid credentials", variant: "destructive" });
+    },
+  });
 
   const handleYearClick = () => {
     const newCount = clickCount + 1;
     setClickCount(newCount);
     
     if (newCount >= 5) {
-      setShowPasswordModal(true);
+      setShowAdminAccess(true);
       setClickCount(0);
     }
   };
 
-  const services = [
+  const handleAdminLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password.trim()) {
+      authMutation.mutate(password);
+    }
+  };
+
+  const features = [
     {
-      icon: Code,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      title: "Full-Stack Development",
-      description: "End-to-end web application development using modern frameworks like React, Node.js, and cloud technologies.",
-      features: ["React & Next.js Frontend", "Node.js & Express Backend", "Database Design & Integration"]
+      icon: Brain,
+      title: "AI-Powered Analytics",
+      description: "Advanced machine learning algorithms provide deep insights into your data patterns and user behavior.",
+      gradient: "from-purple-500 to-pink-500"
     },
     {
-      icon: Smartphone,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      title: "Responsive Design",
-      description: "Mobile-first design approach ensuring your application looks perfect on all devices and screen sizes.",
-      features: ["Mobile-First Approach", "Cross-Browser Compatibility", "Performance Optimization"]
+      icon: Cpu,
+      title: "Quantum Processing",
+      description: "Next-generation computing power enabling real-time processing of complex datasets at unprecedented speeds.",
+      gradient: "from-blue-500 to-cyan-500"
+    },
+    {
+      icon: Database,
+      title: "Distributed Architecture",
+      description: "Scalable cloud infrastructure that grows with your business, ensuring 99.99% uptime and reliability.",
+      gradient: "from-green-500 to-emerald-500"
+    },
+    {
+      icon: Network,
+      title: "Neural Networks",
+      description: "Deep learning capabilities that continuously optimize performance and predict future trends.",
+      gradient: "from-orange-500 to-red-500"
     },
     {
       icon: Shield,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      title: "Security & Performance",
-      description: "Enterprise-grade security implementation with performance optimization for scalable applications.",
-      features: ["Data Encryption & Security", "Load Testing & Optimization", "Cloud Infrastructure"]
+      title: "Quantum Encryption",
+      description: "Military-grade security protocols protecting your data with quantum-resistant cryptography.",
+      gradient: "from-indigo-500 to-purple-500"
     },
     {
-      icon: TrendingUp,
-      color: "text-blue-500",
-      bgColor: "bg-blue-50",
-      title: "Analytics & Insights",
-      description: "Comprehensive analytics integration to track user behavior and optimize your application's performance.",
-      features: ["User Behavior Tracking", "Performance Monitoring", "Custom Dashboards"]
-    },
-    {
-      icon: Settings,
-      color: "text-purple-500",
-      bgColor: "bg-purple-50",
-      title: "API Development",
-      description: "RESTful API design and development with comprehensive documentation and testing.",
-      features: ["RESTful API Design", "Documentation & Testing", "Third-party Integrations"]
-    },
-    {
-      icon: Rocket,
-      color: "text-green-500",
-      bgColor: "bg-green-50",
-      title: "Deployment & DevOps",
-      description: "Streamlined deployment processes with CI/CD pipelines and cloud infrastructure management.",
-      features: ["CI/CD Pipeline Setup", "Cloud Deployment", "Monitoring & Maintenance"]
+      icon: Globe,
+      title: "Global Edge Network",
+      description: "Worldwide CDN deployment ensuring lightning-fast performance across all geographical locations.",
+      gradient: "from-teal-500 to-blue-500"
     }
   ];
 
-  const portfolioItems = [
-    {
-      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
-      category: "E-commerce",
-      tech: "React",
-      title: "Modern E-commerce Platform",
-      description: "Full-featured online store with advanced filtering, payment integration, and admin dashboard."
-    },
-    {
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
-      category: "SaaS",
-      tech: "Dashboard",
-      title: "Analytics Dashboard",
-      description: "Comprehensive analytics platform with real-time data visualization and reporting tools."
-    },
-    {
-      image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=400",
-      category: "Mobile",
-      tech: "React Native",
-      title: "Mobile Application",
-      description: "Cross-platform mobile app with native performance and seamless user experience."
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: "Sarah Johnson",
-      title: "CEO, TechStart Inc.",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&face",
-      content: "Acme Web Agency transformed our online presence completely. The team delivered a stunning, high-performance website that exceeded our expectations."
-    },
-    {
-      name: "Michael Chen",
-      title: "CTO, DataFlow Solutions",
-      image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&face",
-      content: "Outstanding work! The dashboard they built for us has streamlined our operations and improved our team's productivity significantly."
-    },
-    {
-      name: "Emily Rodriguez",
-      title: "Founder, GrowthLab",
-      image: "https://images.unsplash.com/photo-1494790108755-2616b332db29?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&face",
-      content: "Professional, reliable, and incredibly talented. They took our complex requirements and delivered a solution that works perfectly."
-    }
+  const stats = [
+    { number: "99.99%", label: "Uptime Guarantee", icon: CheckCircle },
+    { number: "10ms", label: "Response Time", icon: Zap },
+    { number: "500K+", label: "Active Users", icon: Users },
+    { number: "50+", label: "Awards Won", icon: Award }
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-950 text-white overflow-hidden">
+      {/* Animated Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-slate-950 via-blue-950 to-purple-950">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-cyan-500/30 rounded-full blur-3xl animate-pulse delay-2000"></div>
+        </div>
+      </div>
+
       {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200">
+      <nav className="relative z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-800">
         <div className="max-w-7xl mx-auto px-6 sm:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <Code className="text-white text-sm" />
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+                <Brain className="text-white text-lg" />
               </div>
-              <span className="text-xl font-bold text-slate-900">Acme Web Agency</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                NeuralTech Solutions
+              </span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <button 
-                onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
-                className="text-slate-600 hover:text-slate-900 transition-colors"
-              >
-                Services
+              <button className="text-slate-300 hover:text-white transition-colors duration-300">
+                Solutions
               </button>
-              <button 
-                onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
-                className="text-slate-600 hover:text-slate-900 transition-colors"
-              >
-                Portfolio
+              <button className="text-slate-300 hover:text-white transition-colors duration-300">
+                Technology
               </button>
-              <button 
-                onClick={() => document.getElementById('testimonials')?.scrollIntoView({ behavior: 'smooth' })}
-                className="text-slate-600 hover:text-slate-900 transition-colors"
-              >
-                Testimonials
+              <button className="text-slate-300 hover:text-white transition-colors duration-300">
+                Research
               </button>
-              <Button>Get Started</Button>
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-0 shadow-lg shadow-blue-500/25">
+                Get Started
+              </Button>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 py-20 sm:py-32">
-        <div className="absolute inset-0 bg-grid-slate-100"></div>
-        <div className="relative max-w-7xl mx-auto px-6 sm:px-8">
+      <section className="relative z-10 pt-20 pb-32">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8">
           <div className="text-center">
-            <h1 className="text-4xl sm:text-6xl font-bold text-slate-900 mb-6">
-              Build <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Amazing</span> Web Experiences
+            <div className="inline-flex items-center px-4 py-2 bg-slate-800/50 rounded-full border border-slate-700 mb-8">
+              <Zap className="w-4 h-4 text-yellow-400 mr-2" />
+              <span className="text-sm text-slate-300">Powered by Quantum AI Technology</span>
+            </div>
+            
+            <h1 className="text-5xl sm:text-7xl font-bold mb-6 leading-tight">
+              The Future of
+              <br />
+              <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                Digital Intelligence
+              </span>
             </h1>
-            <p className="text-xl text-slate-600 mb-8 max-w-3xl mx-auto">
-              We craft cutting-edge web applications and digital experiences that drive results for your business. From concept to deployment, we've got you covered.
+            
+            <p className="text-xl text-slate-400 mb-12 max-w-3xl mx-auto leading-relaxed">
+              Harness the power of advanced AI and quantum computing to transform your business. 
+              Our revolutionary platform processes data at the speed of thought.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
               <Button 
                 size="lg" 
-                className="px-8 py-4"
-                onClick={() => document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-0 shadow-2xl shadow-blue-500/25 text-lg group"
               >
-                Start Your Project
+                Start Your Journey
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="px-8 py-4"
-                onClick={() => document.getElementById('portfolio')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-8 py-4 bg-transparent border-slate-600 text-slate-300 hover:bg-slate-800 hover:border-slate-500 text-lg"
               >
-                View Our Work
+                Watch Demo
               </Button>
             </div>
           </div>
-          
-          <div className="mt-16 relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-3xl blur-3xl transform rotate-6"></div>
-            <img 
-              src="https://images.unsplash.com/photo-1551650975-87deedd944c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=600" 
-              alt="Modern web development workspace" 
-              className="relative rounded-2xl shadow-2xl w-full max-w-4xl mx-auto" 
-            />
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mt-20">
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl mb-4 shadow-lg shadow-blue-500/25">
+                  <stat.icon className="w-6 h-6 text-white" />
+                </div>
+                <div className="text-3xl font-bold text-white mb-2">{stat.number}</div>
+                <div className="text-slate-400 text-sm">{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Services Section */}
-      <section id="services" className="py-20 bg-white">
+      {/* Features Section */}
+      <section className="relative z-10 py-20">
         <div className="max-w-7xl mx-auto px-6 sm:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Our Services</h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              We offer comprehensive web development solutions tailored to your business needs
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">
+              Revolutionary Technology Stack
+            </h2>
+            <p className="text-xl text-slate-400 max-w-3xl mx-auto">
+              Built on cutting-edge technologies that push the boundaries of what's possible
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <Card key={index} className="group hover:shadow-xl transition-all duration-300">
+            {features.map((feature, index) => (
+              <Card key={index} className="bg-slate-900/50 border-slate-800 backdrop-blur-xl hover:bg-slate-800/50 transition-all duration-500 group">
                 <CardContent className="p-8">
-                  <div className={`w-12 h-12 ${service.bgColor} rounded-xl flex items-center justify-center mb-6`}>
-                    <service.icon className={`${service.color} text-xl`} />
+                  <div className={`w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-2xl flex items-center justify-center mb-6 shadow-2xl group-hover:scale-110 transition-transform duration-300`}>
+                    <feature.icon className="text-white text-2xl" />
                   </div>
-                  <h3 className="text-xl font-semibold text-slate-900 mb-3">{service.title}</h3>
-                  <p className="text-slate-600 mb-4">{service.description}</p>
-                  <ul className="text-sm text-slate-500 space-y-1">
-                    {service.features.map((feature, idx) => (
-                      <li key={idx}>• {feature}</li>
-                    ))}
-                  </ul>
+                  <h3 className="text-xl font-semibold text-white mb-4 group-hover:text-blue-400 transition-colors">
+                    {feature.title}
+                  </h3>
+                  <p className="text-slate-400 leading-relaxed">
+                    {feature.description}
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -223,141 +226,104 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Portfolio Section */}
-      <section id="portfolio" className="py-20 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Our Portfolio</h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Discover some of our recent projects and the innovative solutions we've delivered
+      {/* CTA Section */}
+      <section className="relative z-10 py-20">
+        <div className="max-w-4xl mx-auto px-6 sm:px-8 text-center">
+          <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 rounded-3xl p-12 border border-slate-800 backdrop-blur-xl">
+            <Rocket className="w-16 h-16 mx-auto mb-6 text-blue-400" />
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
+              Ready to Transform Your Business?
+            </h2>
+            <p className="text-xl text-slate-400 mb-8">
+              Join thousands of forward-thinking companies already using our platform
             </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {portfolioItems.map((item, index) => (
-              <Card key={index} className="group cursor-pointer overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-                <img 
-                  src={item.image} 
-                  alt={item.title} 
-                  className="w-full h-48 object-cover" 
-                />
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-600 text-xs font-medium rounded-full">{item.category}</span>
-                    <span className="px-2 py-1 bg-green-100 text-green-600 text-xs font-medium rounded-full">{item.tech}</span>
-                  </div>
-                  <h3 className="text-xl font-semibold text-slate-900 mb-2">{item.title}</h3>
-                  <p className="text-slate-600 text-sm">{item.description}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          
-          <div className="text-center mt-12">
-            <Button variant="ghost" className="text-blue-600 font-semibold hover:text-blue-700">
-              View All Projects →
+            <Button 
+              size="lg" 
+              className="px-12 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 border-0 shadow-2xl shadow-blue-500/25 text-lg"
+            >
+              Get Started Today
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">What Our Clients Say</h2>
-            <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-              Don't just take our word for it - hear from the businesses we've helped grow
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-slate-50 border-slate-200">
-                <CardContent className="p-8">
-                  <div className="flex items-center mb-4">
-                    <div className="flex text-yellow-400 text-sm">
-                      {'★'.repeat(5)}
-                    </div>
-                  </div>
-                  <blockquote className="text-slate-700 mb-6">
-                    "{testimonial.content}"
-                  </blockquote>
-                  <div className="flex items-center">
-                    <img 
-                      src={testimonial.image} 
-                      alt={testimonial.name} 
-                      className="w-12 h-12 rounded-full object-cover" 
-                    />
-                    <div className="ml-4">
-                      <div className="font-semibold text-slate-900">{testimonial.name}</div>
-                      <div className="text-slate-600 text-sm">{testimonial.title}</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Footer */}
-      <footer className="bg-slate-900 text-white py-16">
+      <footer className="relative z-10 bg-slate-900/80 backdrop-blur-xl border-t border-slate-800 py-16">
         <div className="max-w-7xl mx-auto px-6 sm:px-8">
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             <div className="col-span-1 md:col-span-2">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Code className="text-white text-sm" />
+              <div className="flex items-center space-x-3 mb-6">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+                  <Brain className="text-white text-lg" />
                 </div>
-                <span className="text-xl font-bold">Acme Web Agency</span>
+                <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                  NeuralTech Solutions
+                </span>
               </div>
-              <p className="text-slate-400 mb-6 max-w-md">
-                Building the future of web development, one project at a time. We create digital experiences that drive results.
+              <p className="text-slate-400 mb-6 max-w-md leading-relaxed">
+                Pioneering the future of artificial intelligence and quantum computing to solve tomorrow's challenges today.
               </p>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Services</h4>
-              <ul className="space-y-2 text-slate-400">
-                <li><a href="#" className="hover:text-white transition-colors">Web Development</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Mobile Apps</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">UI/UX Design</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Consulting</a></li>
+              <h4 className="font-semibold text-white mb-4">Platform</h4>
+              <ul className="space-y-3 text-slate-400">
+                <li><a href="#" className="hover:text-white transition-colors">AI Analytics</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Quantum Computing</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Neural Networks</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Edge Computing</a></li>
               </ul>
             </div>
             
             <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-slate-400">
-                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
+              <h4 className="font-semibold text-white mb-4">Company</h4>
+              <ul className="space-y-3 text-slate-400">
+                <li><a href="#" className="hover:text-white transition-colors">About</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Research</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
               </ul>
             </div>
           </div>
           
           <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-slate-400">
+            <p className="text-slate-400 mb-4 md:mb-0">
               © <span 
-                className="cursor-pointer hover:text-white transition-colors select-none"
-                onClick={handleYearClick}
+                onClick={handleYearClick} 
+                className="cursor-pointer hover:text-white transition-colors"
               >
                 2025
-              </span> Acme Web Agency
+              </span> NeuralTech Solutions. All rights reserved.
             </p>
-            <p className="text-slate-400 text-sm mt-4 md:mt-0">
-              Privacy Policy • Terms of Service
-            </p>
+            
+            {showAdminAccess && (
+              <form onSubmit={handleAdminLogin} className="flex items-center space-x-3">
+                <Input
+                  type="password"
+                  placeholder="Admin access..."
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-40 bg-slate-800 border-slate-700 text-white placeholder-slate-500 focus:border-blue-500"
+                />
+                <Button 
+                  type="submit" 
+                  size="sm"
+                  disabled={authMutation.isPending}
+                  className="bg-slate-700 hover:bg-slate-600 border-slate-600 text-white"
+                >
+                  {authMutation.isPending ? "..." : "→"}
+                </Button>
+              </form>
+            )}
+            
+            {!showAdminAccess && (
+              <div className="text-slate-500 text-sm">
+                Privacy Policy • Terms of Service
+              </div>
+            )}
           </div>
         </div>
       </footer>
-
-      <PasswordModal 
-        isOpen={showPasswordModal} 
-        onClose={() => setShowPasswordModal(false)} 
-      />
     </div>
   );
 }
