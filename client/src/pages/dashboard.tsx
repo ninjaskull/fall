@@ -48,7 +48,7 @@ export default function Dashboard() {
               <Database className="text-white h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Campaign Manager</h1>
+              <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
               <p className="text-sm text-slate-600">Manage your data campaigns efficiently</p>
             </div>
           </div>
@@ -63,7 +63,6 @@ export default function Dashboard() {
           </div>
         </div>
       </header>
-
       {/* Navigation Tabs */}
       <div className="max-w-7xl mx-auto px-6 pt-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
