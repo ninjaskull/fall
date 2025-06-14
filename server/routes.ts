@@ -449,6 +449,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get contact submissions (for admin use)
+  app.get('/api/contacts', async (req, res) => {
+    try {
+      const contacts = await storage.getContacts();
+      res.json(contacts.map(contact => ({
+        id: contact.id,
+        name: contact.name,
+        email: contact.email,
+        mobile: contact.mobile,
+        emailSent: contact.emailSent,
+        createdAt: contact.createdAt
+      })));
+    } catch (error) {
+      console.error('Get contacts error:', error);
+      res.status(500).json({ message: 'Failed to fetch contacts' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
