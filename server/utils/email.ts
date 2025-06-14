@@ -1,11 +1,13 @@
 import * as brevo from '@getbrevo/brevo';
 
-if (!process.env.BREVO_API_KEY) {
-  throw new Error("BREVO_API_KEY environment variable must be set");
-}
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
 
-const apiInstance = new brevo.TransactionalEmailsApi();
-apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+let apiInstance: brevo.TransactionalEmailsApi | null = null;
+
+if (BREVO_API_KEY) {
+  apiInstance = new brevo.TransactionalEmailsApi();
+  apiInstance.setApiKey(brevo.TransactionalEmailsApiApiKeys.apiKey, BREVO_API_KEY);
+}
 
 interface ContactFormData {
   name: string;
@@ -14,6 +16,11 @@ interface ContactFormData {
 }
 
 export async function sendContactFormEmail(data: ContactFormData): Promise<boolean> {
+  if (!apiInstance) {
+    console.log('Email service not configured - BREVO_API_KEY not provided');
+    return false;
+  }
+
   try {
     const sendSmtpEmail = new brevo.SendSmtpEmail();
     
