@@ -113,13 +113,6 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
     onSave(mappings);
   };
 
-  const getAvailableHeaders = (currentField?: string) => {
-    const usedHeaders = Object.values(mappings).filter(header => 
-      currentField ? mappings[currentField] !== header : true
-    );
-    return validHeaders.filter(header => !usedHeaders.includes(header));
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -199,7 +192,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                       </span>
                       {currentMapping && isAutoDetected && (
                         <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
-                          ✓ Auto-detected
+                          Auto-detected
                         </Badge>
                       )}
                       <Badge variant="outline" className="text-xs text-red-600 border-red-200">
@@ -213,16 +206,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                         onValueChange={(value) => handleMappingChange(standardField, value)}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select CSV column...">
-                            {currentMapping ? (
-                              <span className="flex items-center gap-2">
-                                <span className="text-blue-600">→</span>
-                                <span className="font-medium">{currentMapping}</span>
-                              </span>
-                            ) : (
-                              <span className="text-slate-400">Select CSV column...</span>
-                            )}
-                          </SelectValue>
+                          <SelectValue placeholder="Select CSV column..." />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="__unmapped__">
@@ -277,7 +261,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                       </span>
                       {currentMapping && isAutoDetected && (
                         <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 border-green-200">
-                          ✓ Auto-detected
+                          Auto-detected
                         </Badge>
                       )}
                     </div>
@@ -288,16 +272,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                         onValueChange={(value) => handleMappingChange(standardField, value)}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Select CSV column...">
-                            {currentMapping ? (
-                              <span className="flex items-center gap-2">
-                                <span className="text-blue-600">→</span>
-                                <span className="font-medium">{currentMapping}</span>
-                              </span>
-                            ) : (
-                              <span className="text-slate-400">Select CSV column...</span>
-                            )}
-                          </SelectValue>
+                          <SelectValue placeholder="Select CSV column..." />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="__unmapped__">
