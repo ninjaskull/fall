@@ -54,9 +54,11 @@ export default function CampaignList() {
     }
   });
 
-  const filteredCampaigns = (campaigns as Campaign[]).filter((campaign: Campaign) =>
-    campaign.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredCampaigns = (campaigns as Campaign[])
+    .filter((campaign: Campaign) =>
+      campaign.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const handleViewData = (campaign: Campaign) => {
     setLocation(`/campaign/${campaign.id}`);
@@ -72,14 +74,11 @@ export default function CampaignList() {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 1) return "Uploaded 1 day ago";
-    if (diffDays < 7) return `Uploaded ${diffDays} days ago`;
-    
-    return `Uploaded ${date.toLocaleDateString()}`;
+    return `Uploaded ${date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })}`;
   };
 
   const getFileIcon = (filename: string) => {
