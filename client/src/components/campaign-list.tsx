@@ -6,11 +6,13 @@ import {
   Eye, 
   Trash2, 
   Search, 
-  File
+  File,
+  Upload
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import CsvUpload from "./csv-upload";
 
 interface Campaign {
   id: number;
@@ -22,6 +24,7 @@ interface Campaign {
 
 export default function CampaignList() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [showUpload, setShowUpload] = useState(false);
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -122,8 +125,22 @@ export default function CampaignList() {
             <span className="text-sm text-gray-500">
               {filteredCampaigns.length} campaigns
             </span>
+            <Button 
+              onClick={() => setShowUpload(!showUpload)}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              Upload CSV
+            </Button>
           </div>
         </div>
+
+        {/* Upload Section */}
+        {showUpload && (
+          <div className="mb-8">
+            <CsvUpload />
+          </div>
+        )}
 
 
 
