@@ -144,6 +144,12 @@ Changelog:
   - Ensured all navigation uses wouter's setLocation for seamless SPA experience
   - Added manual override tracking to prevent auto-detection conflicts in field mapping
   - All page transitions now occur without reloads, maintaining application state
+- June 14, 2025. Implemented strict session-based authentication:
+  - Replaced persistent localStorage authentication with session-only access
+  - Dashboard access now requires fresh authentication via 5-click trigger
+  - Direct dashboard URLs automatically redirect to landing page
+  - Browser refresh clears authentication state, requiring re-authentication
+  - Added ProtectedRoute component to guard all dashboard and campaign routes
 
 ## User Preferences
 
