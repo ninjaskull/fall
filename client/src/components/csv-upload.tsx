@@ -90,10 +90,15 @@ export default function CsvUpload() {
   };
 
   const handleUpload = () => {
+    console.log('handleUpload called');
+    console.log('selectedFiles:', selectedFiles);
     if (selectedFiles && selectedFiles[0]) {
       const file = selectedFiles[0];
+      console.log('Starting preview for file:', file.name);
       setPendingFile(file);
       previewMutation.mutate(file);
+    } else {
+      console.log('No files selected');
     }
   };
 
@@ -164,7 +169,6 @@ export default function CsvUpload() {
             <Input 
               type="file" 
               id="csvFileInput" 
-              multiple 
               accept=".csv" 
               className="hidden" 
               onChange={handleFileChange}
