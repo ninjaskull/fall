@@ -116,7 +116,7 @@ export default function Landing() {
                 <Brain className="text-white text-lg" />
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                NeuralTech Solutions
+                fallowl
               </span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
@@ -256,7 +256,7 @@ export default function Landing() {
                   <Brain className="text-white text-lg" />
                 </div>
                 <span className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  NeuralTech Solutions
+                  fallowl
                 </span>
               </div>
               <p className="text-slate-400 mb-6 max-w-md leading-relaxed">
@@ -292,7 +292,7 @@ export default function Landing() {
                 className="cursor-pointer hover:text-white transition-colors"
               >
                 2025
-              </span> NeuralTech Solutions. All rights reserved.
+              </span> fallowl. All rights reserved.
             </p>
             
             {showAdminAccess && (
