@@ -171,7 +171,7 @@ export default function NotesDocuments() {
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-semibold text-slate-900">Campaign Community</h3>
+            <h3 className="font-semibold text-slate-900">Notes & Files</h3>
             <p className="text-sm text-slate-500">
               {allMessages.length} message{allMessages.length !== 1 ? 's' : ''}
             </p>
@@ -192,7 +192,6 @@ export default function NotesDocuments() {
           </Button>
         </div>
       </div>
-
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {allMessages.length === 0 ? (
@@ -246,7 +245,6 @@ export default function NotesDocuments() {
         )}
         <div ref={messagesEndRef} />
       </div>
-
       {/* Message Input */}
       <div className="border-t p-4">
         <div className="flex items-end space-x-2">
