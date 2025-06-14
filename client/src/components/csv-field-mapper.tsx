@@ -71,10 +71,17 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
   }, [csvHeaders]);
 
   const handleMappingChange = (standardField: string, csvHeader: string) => {
-    setMappings(prev => ({
-      ...prev,
-      [standardField]: csvHeader
-    }));
+    setMappings(prev => {
+      if (csvHeader === "__unmapped__") {
+        const newMappings = { ...prev };
+        delete newMappings[standardField];
+        return newMappings;
+      }
+      return {
+        ...prev,
+        [standardField]: csvHeader
+      };
+    });
   };
 
   const handleRemoveMapping = (standardField: string) => {
@@ -174,14 +181,14 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
                   
                   <div className="flex-1">
                     <Select
-                      value={currentMapping || ""}
+                      value={currentMapping || "__unmapped__"}
                       onValueChange={(value) => handleMappingChange(standardField, value)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select CSV column" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">-- Not mapped --</SelectItem>
+                        <SelectItem value="__unmapped__">-- Not mapped --</SelectItem>
                         {getAvailableHeaders(standardField).map(header => (
                           <SelectItem key={header} value={header}>
                             {header}
