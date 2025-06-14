@@ -49,7 +49,7 @@ export default function Dashboard() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-              <p className="text-sm text-slate-600">Manage your data campaigns efficiently</p>
+              <p className="text-sm text-slate-600">Trust me its made by Me</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
