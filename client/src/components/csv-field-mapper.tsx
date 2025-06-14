@@ -43,6 +43,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
   // Auto-detect field mappings
   useEffect(() => {
     if (validHeaders.length > 0) {
+      console.log('Auto-detecting fields for headers:', validHeaders);
       const autoMappings: Record<string, string> = {};
       let detectedCount = 0;
 
@@ -53,13 +54,22 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
           const normalizedHeader = header.toLowerCase().replace(/[^a-z0-9]/g, '');
           
           // Direct match
-          if (normalizedHeader === normalizedStandard) return true;
+          if (normalizedHeader === normalizedStandard) {
+            console.log(`Direct match found: ${standardField} -> ${header}`);
+            return true;
+          }
           
           // Partial matches for common variations
           const keywords = standardField.toLowerCase().split(' ');
-          return keywords.every(keyword => 
+          const isMatch = keywords.every(keyword => 
             normalizedHeader.includes(keyword.replace(/[^a-z0-9]/g, ''))
           );
+          
+          if (isMatch) {
+            console.log(`Partial match found: ${standardField} -> ${header}`);
+          }
+          
+          return isMatch;
         });
 
         if (matchedHeader) {
@@ -68,6 +78,7 @@ export default function CsvFieldMapper({ isOpen, onClose, onSave, csvHeaders, fi
         }
       });
 
+      console.log('Auto-detected mappings:', autoMappings);
       setMappings(autoMappings);
       setAutoDetectedCount(detectedCount);
     }
